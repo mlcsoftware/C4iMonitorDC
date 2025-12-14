@@ -1,0 +1,107 @@
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+    <SOAP-ENV:Header xmlns:wsa="http://www.w3.org/2005/08/addressing">
+        <wsa:To SOAP-ENV:mustUnderstand="1">http://www.w3.org/2005/08/addressing/anonymous</wsa:To>
+        <wsa:Action>https://ws-si.mecon.gov.ar/ws/compras/consultarSaldoOrdenServiceResponse</wsa:Action>
+        <wsa:MessageID>urn:uuid:c2659ad5-270d-4983-9e11-5d649951454c</wsa:MessageID>
+        <wsa:RelatesTo>urn:uuid:b304468a-ba56-47bb-ac2d-a22738ac8498</wsa:RelatesTo>
+    </SOAP-ENV:Header>
+    <SOAP-ENV:Body>
+        <ns3:consultarSaldoOrden xmlns:ns3="http://beans.webServices.compras.esidif.mecon.gov.ar"
+            xmlns="">
+            <importes>
+                <totalMO>62472000</totalMO>
+                <totalVigenteMO>62472000</totalVigenteMO>
+                <saldoMO>62472000</saldoMO>
+                <totalMCL>62472000</totalMCL>
+                <totalVigenteMCL>62472000</totalVigenteMCL>
+                <saldoMCL>62472000</saldoMCL>
+            </importes>
+            <itemsCatalogo>
+                <idItem>1</idItem>
+                <cantidad>19</cantidad>
+                <cantidadVigente>19</cantidadVigente>
+                <saldoCantidad>19</saldoCantidad>
+                <importeUnitarioMO>3288000</importeUnitarioMO>
+                <importeUnitarioVigenteMO>3288000</importeUnitarioVigenteMO>
+                <importeMO>62472000</importeMO>
+                <importeMCL>62472000</importeMCL>
+                <importeVigenteMO>62472000</importeVigenteMO>
+                <importeVigenteMCL>62472000</importeVigenteMCL>
+                <saldoImporteMO>62472000</saldoImporteMO>
+                <saldoImporteMCL>62472000</saldoImporteMCL>
+            </itemsCatalogo>
+            <itemsPresupuestarios>
+                <imputacionPresupuestaria>
+                    <imputacionPresupuestaria>37559</imputacionPresupuestaria>
+                    <jurisdiccion>88</jurisdiccion>
+                    <subJurisdiccion>3</subJurisdiccion>
+                    <entidad>0</entidad>
+                    <ejercicio>2025</ejercicio>
+                    <servicio>350</servicio>
+                    <aperturaProgramatica>1.0.0.1.0</aperturaProgramatica>
+                    <objetoGasto>3.2.6.0</objetoGasto>
+                    <fuente>1.1</fuente>
+                    <moneda>1</moneda>
+                    <ubicaciongeografica>2</ubicaciongeografica>
+                    <descripcionApg>Conducción General de la Política Laboral  y de</descripcionApg>
+                    <pex>0</pex>
+                    <bapin>0</bapin>
+                </imputacionPresupuestaria>
+                <ejercicio>2025</ejercicio>
+                <unidadDescentralizada>
+                    <codigo>350</codigo>
+                    <descripcion>Secretaría de Trabajo</descripcion>
+                </unidadDescentralizada>
+                <importeMO>2127112.32</importeMO>
+                <importeMCL>2127112.32</importeMCL>
+                <importeVigenteMO>62472000.00</importeVigenteMO>
+                <importeVigenteMCL>62472000.00</importeVigenteMCL>
+                <saldoMO>62472000.00</saldoMO>
+                <saldoMCL>62472000.00</saldoMCL>
+            </itemsPresupuestarios>
+            <itemsPresupuestarios>
+                <idComprobanteOriogen>
+                    <tipoComprobante>SCO</tipoComprobante>
+                    <ejercicio>2025</ejercicio>
+                    <entidadEmisora>
+                        <tipoDominio>SAF</tipoDominio>
+                        <codigo>350</codigo>
+                        <descripcion>Secretaría de Trabajo, Empleo y Seguridad Social</descripcion>
+                    </entidadEmisora>
+                    <numero>1</numero>
+                    <oficinaCompras>
+                        <uoc>33</uoc>
+                        <uocInt>0</uocInt>
+                    </oficinaCompras>
+                </idComprobanteOriogen>
+                <imputacionPresupuestaria>
+                    <imputacionPresupuestaria>37559</imputacionPresupuestaria>
+                    <jurisdiccion>88</jurisdiccion>
+                    <subJurisdiccion>3</subJurisdiccion>
+                    <entidad>0</entidad>
+                    <ejercicio>2025</ejercicio>
+                    <servicio>350</servicio>
+                    <aperturaProgramatica>1.0.0.1.0</aperturaProgramatica>
+                    <objetoGasto>3.2.6.0</objetoGasto>
+                    <fuente>1.1</fuente>
+                    <moneda>1</moneda>
+                    <ubicaciongeografica>2</ubicaciongeografica>
+                    <descripcionApg>Conducción General de la Política Laboral  y de</descripcionApg>
+                    <pex>0</pex>
+                    <bapin>0</bapin>
+                </imputacionPresupuestaria>
+                <ejercicio>2025</ejercicio>
+                <unidadDescentralizada>
+                    <codigo>350</codigo>
+                    <descripcion>Secretaría de Trabajo</descripcion>
+                </unidadDescentralizada>
+                <importeMO>60344887.68</importeMO>
+                <importeMCL>60344887.68</importeMCL>
+                <importeVigenteMO>0.00</importeVigenteMO>
+                <importeVigenteMCL>0.00</importeVigenteMCL>
+                <saldoMO>0.00</saldoMO>
+                <saldoMCL>0.00</saldoMCL>
+            </itemsPresupuestarios>
+        </ns3:consultarSaldoOrden>
+    </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

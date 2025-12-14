@@ -1,0 +1,64 @@
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+    <SOAP-ENV:Header xmlns:wsa="http://www.w3.org/2005/08/addressing">
+        <wsa:To SOAP-ENV:mustUnderstand="1">http://www.w3.org/2005/08/addressing/anonymous</wsa:To>
+        <wsa:Action>https://ws-si.mecon.gov.ar/ws/compras/consultarSaldoOrdenServiceResponse</wsa:Action>
+        <wsa:MessageID>urn:uuid:9cd9b3c5-63bd-488f-b916-9e9d5e095dc2</wsa:MessageID>
+        <wsa:RelatesTo>urn:uuid:6334e52b-4c82-4597-9c0e-7f0c9cf9ec18</wsa:RelatesTo>
+    </SOAP-ENV:Header>
+    <SOAP-ENV:Body>
+        <ns3:consultarSaldoOrden xmlns:ns3="http://beans.webServices.compras.esidif.mecon.gov.ar"
+            xmlns="">
+            <importes>
+                <totalMO>2558224</totalMO>
+                <totalVigenteMO>2558224</totalVigenteMO>
+                <saldoMO>2558224</saldoMO>
+                <totalMCL>2558224</totalMCL>
+                <totalVigenteMCL>2558224</totalVigenteMCL>
+                <saldoMCL>2558224</saldoMCL>
+            </importes>
+            <itemsCatalogo>
+                <idItem>21</idItem>
+                <cantidad>16</cantidad>
+                <cantidadVigente>16</cantidadVigente>
+                <saldoCantidad>16</saldoCantidad>
+                <importeUnitarioMO>159889</importeUnitarioMO>
+                <importeUnitarioVigenteMO>159889</importeUnitarioVigenteMO>
+                <importeMO>2558224</importeMO>
+                <importeMCL>2558224</importeMCL>
+                <importeVigenteMO>2558224</importeVigenteMO>
+                <importeVigenteMCL>2558224</importeVigenteMCL>
+                <saldoImporteMO>2558224</saldoImporteMO>
+                <saldoImporteMCL>2558224</saldoImporteMCL>
+            </itemsCatalogo>
+            <itemsPresupuestarios>
+                <imputacionPresupuestaria>
+                    <imputacionPresupuestaria>109825</imputacionPresupuestaria>
+                    <jurisdiccion>45</jurisdiccion>
+                    <subJurisdiccion>21</subJurisdiccion>
+                    <entidad>0</entidad>
+                    <ejercicio>2025</ejercicio>
+                    <servicio>374</servicio>
+                    <aperturaProgramatica>16.0.0.4.0</aperturaProgramatica>
+                    <objetoGasto>3.5.3.0</objetoGasto>
+                    <fuente>1.1</fuente>
+                    <moneda>1</moneda>
+                    <ubicaciongeografica>2</ubicaciongeografica>
+                    <descripcionApg>Inteligencia Operacional Táctica</descripcionApg>
+                    <pex>0</pex>
+                    <bapin>0</bapin>
+                </imputacionPresupuestaria>
+                <ejercicio>2026</ejercicio>
+                <unidadDescentralizada>
+                    <codigo>374</codigo>
+                    <descripcion>Estado Mayor Gral del Ejército</descripcion>
+                </unidadDescentralizada>
+                <importeMO>2558224</importeMO>
+                <importeMCL>2558224</importeMCL>
+                <importeVigenteMO>2558224</importeVigenteMO>
+                <importeVigenteMCL>2558224</importeVigenteMCL>
+                <saldoMO>2558224</saldoMO>
+                <saldoMCL>2558224</saldoMCL>
+            </itemsPresupuestarios>
+        </ns3:consultarSaldoOrden>
+    </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

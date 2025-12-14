@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MONITOR SOLAR Y EOLICO - Configuración</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        nav li {
+            display: inline; /* Hace que los ítems del menú estén en una línea horizontal */
+            padding-left: 20px; /* Espacio entre los ítems del menú */
+            padding-right: 20px;
+            margin: auto;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #fff;
+            font-size: 16px;
+        }
+
+        nav a.active{
+            color: yellow;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        .contenedor-center{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .title{
+            margin-left: 20px;
+        }
+        .subtitle{
+            background-color: black;
+            color: white;
+            padding-left: 20px;
+        }
+        .parameter-container{
+            display: flex;
+            padding-left: 100px;
+            align-items: center;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+        .parameter-container > label{
+            width: 250px;
+        }
+        .octet{
+            width: 50px;
+            text-align: center;
+        }
+        .link{
+            text-decoration: underline;
+            color: blue;
+        }
+        form > button{
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="index.html">INICIO</a></li>
+                <li><a href="monitor.html">MONITOREO</a></li>
+                <li><a href="configuration.html" class="active">CONFIGURACIOIN</a></li>
+            </ul>
+        </nav>
+    </header>
+    <h1 class="title">Configuración</h1>
+    <form method="post" action="save">
+        <!-- CONFIGURA NOMBRE DEL HOST -->
+        <h3 class="subtitle">General</h3>
+        <div class="parameter-container">
+            <label>Nombre del equipo:</label>
+            <input name="txtHostName" />
+        </div>
+        <div class="parameter-container">
+            <label>Constraseña:</label>
+            <a href="resetpassword.html" class="link">Reiniciar contraseña</a>
+        </div>
+        <!-- CONFIGURACION IP -->
+        <h3 class="subtitle">Configuración de red</h3>
+        <div class="parameter-container">
+            <label>Habilitar DHCP:</label>
+            <input type="checkbox" name="dhcp" value="1" />
+        </div>
+        <div class="parameter-container">
+            <label>Dirección IPV4:</label>&nbsp;
+            <input name="txtip1" class="octet" /> . 
+            <input name="txtip2" class="octet" /> . 
+            <input name="txtip3" class="octet" /> . 
+            <input name="txtip4" class="octet" />
+        </div>
+        <div class="parameter-container">
+            <label>Mascara de subred:</label>&nbsp;
+            <input name="txtmask1" class="octet" /> . 
+            <input name="txtmask2" class="octet" /> . 
+            <input name="txtmask3" class="octet" /> . 
+            <input name="txtmask4" class="octet" />
+        </div>
+        <div class="parameter-container">
+            <label>Puerta de enlace:</label>&nbsp;
+            <input name="txtgw1" class="octet" /> . 
+            <input name="txtgw2" class="octet" /> . 
+            <input name="txtgw3" class="octet" /> . 
+            <input name="txtgw4" class="octet" />
+        </div>
+        <!-- SNMP -->
+        <h3 class="subtitle">Configuración SNMP</h3>
+        <div class="parameter-container">
+            <label>Comunidad SNMP:</label>
+            <input name="snmp-community" />
+        </div>
+        <!-- ALARMAS -->
+        <h3 class="subtitle">Alarmas</h3>
+        <div class="parameter-container">
+            <label>Tensión Máxima Canal1 [V]:</label>
+            <input name="alarmV1Max" />
+        </div>
+        <div class="parameter-container">
+            <label>Tensión Mínima Canal1 [V]:</label>
+            <input name="alarmV1Min" />
+        </div>
+        <div class="parameter-container">
+            <label>Tensión Máxima Canal2 [V]:</label>
+            <input name="alarmV2Max" />
+        </div>
+        <div class="parameter-container">
+            <label>Tensión Mínima Canal2 [V]:</label>
+            <input name="alarmV2Min" />
+        </div>
+        <div class="parameter-container">
+            <label>Corriente Máxima Canal1 [A]:</label>
+            <input name="alarmV1Max" />
+        </div>
+        <div class="parameter-container">
+            <label>Corriente Mínima Canal1 [A]:</label>
+            <input name="alarmV1Min" />
+        </div>
+        <div class="parameter-container">
+            <label>Corriente Máxima Canal2 [A]:</label>
+            <input name="alarmV2Max" />
+        </div>
+        <div class="parameter-container">
+            <label>Corriente Mínima Canal2 [A]:</label>
+            <input name="alarmV2Min" />
+        </div>
+        <br />
+        <br />
+        <button>Guardar configuración</button>
+    </form>
+</body>
+</html>
