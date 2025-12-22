@@ -146,6 +146,9 @@ class Cli
       Serial.println();
       Serial.println();
       Serial.print("¿Está seguro que quiere restablecer? [s/N]:");
+      // Primero vacia el buffer de la comunicación serie
+      while(Serial.available())
+         Serial.read();
       // Espera hasta que se presione una tecla
       while(!Serial.available());
       char response = Serial.read();

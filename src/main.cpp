@@ -49,7 +49,7 @@
 // Debug Level from 0 to 4
 #define _ETHERNET_WEBSERVER_LOGLEVEL_       3
 
-#define DEBUG_MODE                          1
+#define DEBUG_MODE                          0
 #define SESSION_TIMEOUT_SEG                 600
 
 //////////////////////////////////////////////////////////
@@ -78,18 +78,26 @@
 #define OID_CH3             ".1.3.6.1.64047.1.2.3"
 #define OID_CH4             ".1.3.6.1.64047.1.2.4"
 #define OID_VDIFF           ".1.3.6.1.64047.1.2.5"
-#define OID_TRAP_MAX_CH1    ".1.3.6.1.64047.1.3.0"
-#define OID_TRAP_MIN_CH1    ".1.3.6.1.64047.1.3.1"
-#define OID_TRAP_MAX_CH2    ".1.3.6.1.64047.1.3.2"
-#define OID_TRAP_MIN_CH2    ".1.3.6.1.64047.1.3.3"
-#define OID_TRAP_MAX_CH3    ".1.3.6.1.64047.1.3.4"
-#define OID_TRAP_MIN_CH3    ".1.3.6.1.64047.1.3.5"
-#define OID_TRAP_MAX_CH4    ".1.3.6.1.64047.1.3.6"
-#define OID_TRAP_MIN_CH4    ".1.3.6.1.64047.1.3.7"
+#define OID_TRAP_MAX_CH1    ".1.3.6.1.64047.2.1.1"
+#define OID_TRAP_MIN_CH1    ".1.3.6.1.64047.2.1.0"
+#define OID_TRAP_MAX_CH2    ".1.3.6.1.64047.2.2.1"
+#define OID_TRAP_MIN_CH2    ".1.3.6.1.64047.2.2.0"
+#define OID_TRAP_MAX_CH3    ".1.3.6.1.64047.2.3.1"
+#define OID_TRAP_MIN_CH3    ".1.3.6.1.64047.2.3.0"
+#define OID_TRAP_MAX_CH4    ".1.3.6.1.64047.2.4.1"
+#define OID_TRAP_MIN_CH4    ".1.3.6.1.64047.2.4.0"
+#define OID_TRAP_CH1_SAFE   ".1.3.6.1.64047.3.1.0"
+#define OID_TRAP_CH2_SAFE   ".1.3.6.1.64047.3.2.0"
+#define OID_TRAP_CH3_SAFE   ".1.3.6.1.64047.3.3.0"
+#define OID_TRAP_CH4_SAFE   ".1.3.6.1.64047.3.4.0"
+
 #define OID_TICK            ".1.3.6.1.64047.1.9.0"
 
 #define BUFFER_AVG          100
 #define CURRENT_MAX         150
+#define HISTERESIS_CURRENT  2
+#define HISTERESIS_VOLTAGE  2
+#define THRESHOLD_CURRENT   1
 
 #define LED                 2
 
@@ -113,6 +121,12 @@ SNMPTrap* trapCH3Max = new SNMPTrap(glbConfig.SNMP_COMMUNITY().c_str(), SNMP_VER
 SNMPTrap* trapCH3Min = new SNMPTrap(glbConfig.SNMP_COMMUNITY().c_str(), SNMP_VERSION_2C);
 SNMPTrap* trapCH4Max = new SNMPTrap(glbConfig.SNMP_COMMUNITY().c_str(), SNMP_VERSION_2C);
 SNMPTrap* trapCH4Min = new SNMPTrap(glbConfig.SNMP_COMMUNITY().c_str(), SNMP_VERSION_2C);
+
+SNMPTrap* trapCH1Safe = new SNMPTrap(glbConfig.SNMP_COMMUNITY().c_str(), SNMP_VERSION_2C);
+SNMPTrap* trapCH2Safe = new SNMPTrap(glbConfig.SNMP_COMMUNITY().c_str(), SNMP_VERSION_2C);
+SNMPTrap* trapCH3Safe = new SNMPTrap(glbConfig.SNMP_COMMUNITY().c_str(), SNMP_VERSION_2C);
+SNMPTrap* trapCH4Safe = new SNMPTrap(glbConfig.SNMP_COMMUNITY().c_str(), SNMP_VERSION_2C);
+
 SNMPTrap* trapVDiffMax = new SNMPTrap(glbConfig.SNMP_COMMUNITY().c_str(), SNMP_VERSION_2C);
 SNMPTrap* trapVDiffMin = new SNMPTrap(glbConfig.SNMP_COMMUNITY().c_str(), SNMP_VERSION_2C);
 
@@ -295,7 +309,7 @@ void handleRoot()
       " + GetHtmlMenu("INICIO") + "\
       <div class='contenedor-center' style='height:100vh;'>\
         <div>\
-          <p style='font-size:5rem;margin-bottom:0.5rem;'>C4i</p>\
+          <p style='font-size:5rem;margin-bottom:0.5rem;text-align:center;'>C4i</p>\
           <h2>Sistema de monitoreo DC</h2>\
         </div>\
       </div>\
@@ -543,6 +557,30 @@ void LoadServer(){
     trapCH4Max->setUDP(&udp); // give a pointer to our UDP object
     trapCH4Max->setTrapOID(new OIDType(OID_TRAP_MAX_CH4)); // OID of the trap
     trapCH4Max->setSpecificTrap(1); 
+    trapCH1Min->setUDP(&udp); // give a pointer to our UDP object
+    trapCH1Min->setTrapOID(new OIDType(OID_TRAP_MIN_CH1)); // OID of the trap
+    trapCH1Min->setSpecificTrap(1); 
+    trapCH2Min->setUDP(&udp); // give a pointer to our UDP object
+    trapCH2Min->setTrapOID(new OIDType(OID_TRAP_MIN_CH2)); // OID of the trap
+    trapCH2Min->setSpecificTrap(1); 
+    trapCH3Min->setUDP(&udp); // give a pointer to our UDP object
+    trapCH3Min->setTrapOID(new OIDType(OID_TRAP_MIN_CH3)); // OID of the trap
+    trapCH3Min->setSpecificTrap(1); 
+    trapCH4Min->setUDP(&udp); // give a pointer to our UDP object
+    trapCH4Min->setTrapOID(new OIDType(OID_TRAP_MIN_CH4)); // OID of the trap
+    trapCH4Min->setSpecificTrap(1); 
+
+    trapCH1Safe->setUDP(&udp); // give a pointer to our UDP object
+    trapCH1Safe->setTrapOID(new OIDType(OID_TRAP_CH1_SAFE)); // OID of the trap
+    trapCH1Safe->setSpecificTrap(1); 
+    trapCH2Safe->setUDP(&udp); // give a pointer to our UDP object
+    trapCH2Safe->setTrapOID(new OIDType(OID_TRAP_CH2_SAFE)); // OID of the trap
+    trapCH2Safe->setSpecificTrap(1); 
+    trapCH3Safe->setUDP(&udp); // give a pointer to our UDP object
+    trapCH3Safe->setTrapOID(new OIDType(OID_TRAP_CH3_SAFE)); // OID of the trap
+    trapCH3Safe->setSpecificTrap(1); 
+    trapCH4Safe->setUDP(&udp); // give a pointer to our UDP object
+    trapCH4Safe->setTrapOID(new OIDType(OID_TRAP_CH4_SAFE)); // OID of the trap
 
     // Set the uptime counter to use in the trap (required)
     trapCH1Max->setUptimeCallback(timestampCallbackOID);
@@ -556,6 +594,13 @@ void LoadServer(){
     trapVDiffMax->setUptimeCallback(timestampCallbackOID);
     trapVDiffMin->setUptimeCallback(timestampCallbackOID);
 
+    trapCH1Safe->setUptimeCallback(timestampCallbackOID);
+    trapCH2Safe->setUptimeCallback(timestampCallbackOID);
+    trapCH3Safe->setUptimeCallback(timestampCallbackOID);
+    trapCH4Safe->setUptimeCallback(timestampCallbackOID);
+    trapVDiffMax->setUptimeCallback(timestampCallbackOID);
+    trapVDiffMin->setUptimeCallback(timestampCallbackOID);
+
     // Set some previously set OID Callbacks to send these values with the trap (optional)
     trapCH1Max->addOIDPointer(currentCH1OID);
     trapCH1Min->addOIDPointer(currentCH1OID);
@@ -566,6 +611,11 @@ void LoadServer(){
     trapCH4Max->addOIDPointer(voltageCH4OID);
     trapCH4Min->addOIDPointer(voltageCH4OID);
 
+    trapCH1Safe->addOIDPointer(currentCH1OID);
+    trapCH2Safe->addOIDPointer(currentCH2OID);
+    trapCH3Safe->addOIDPointer(voltageCH3OID);
+    trapCH4Safe->addOIDPointer(voltageCH4OID);
+
     trapCH1Max->setIP(ETH.localIP()); // Set our Source IP
     trapCH1Min->setIP(ETH.localIP()); // Set our Source IP
     trapCH2Max->setIP(ETH.localIP()); // Set our Source IP
@@ -574,6 +624,11 @@ void LoadServer(){
     trapCH3Min->setIP(ETH.localIP()); // Set our Source IP
     trapCH4Max->setIP(ETH.localIP()); // Set our Source IP
     trapCH4Min->setIP(ETH.localIP()); // Set our Source IP
+
+    trapCH1Safe->setIP(ETH.localIP()); // Set our Source IP
+    trapCH2Safe->setIP(ETH.localIP()); // Set our Source IP
+    trapCH3Safe->setIP(ETH.localIP()); // Set our Source IP
+    trapCH4Safe->setIP(ETH.localIP()); // Set our Source IP
 
     // Ensure to sortHandlers after adding/removing and OID callbacks - this makes snmpwalk work
     snmp.sortHandlers();
@@ -598,14 +653,20 @@ void check_status()
     value = i == 4 ? VoltageCH3 - VoltageCH4 : value;
     SNMPTrap *trapMax = 0;
     SNMPTrap *trapMin = 0;
+    SNMPTrap *trapSafe = 0;
     trapMax = i == 0 ? trapCH1Max : trapMax;
     trapMin = i == 0 ? trapCH1Min : trapMin;
+    trapSafe = i == 0 ? trapCH1Safe : trapSafe;
     trapMax = i == 1 ? trapCH2Max : trapMax;
     trapMin = i == 1 ? trapCH2Min : trapMin;
+    trapSafe = i == 1 ? trapCH2Safe : trapSafe;
     trapMax = i == 2 ? trapCH3Max : trapMax;
     trapMin = i == 2 ? trapCH3Min : trapMin;
+    trapSafe = i == 2 ? trapCH3Safe : trapSafe;
     trapMax = i == 3 ? trapCH4Max : trapMax;
     trapMin = i == 3 ? trapCH4Min : trapMin;
+    trapSafe = i == 3 ? trapCH4Safe : trapSafe;
+
     float max = glbConfig.THRESHOLD_MAX(i+1);
     float min = glbConfig.THRESHOLD_MIN(i+1);
     if(!trapMaxSent[i] && value > max){
@@ -618,11 +679,20 @@ void check_status()
           Serial.println("Couldn't send SNMP Trap");
       }
     }
-    if(trapMaxSent[i] && value <= max)
-      trapMaxSent[i] = false;
+    if(trapMaxSent[i] && value <= (max - HISTERESIS_CURRENT)){
+      if(snmp.sendTrapTo(trapSafe, destinationIP, true, 2, 5000) != INVALID_SNMP_REQUEST_ID){ 
+        Serial.println("");
+        Serial.print("Sent SNMP Trap SAFE CH");
+        Serial.println(i+1);
+        Serial.println(destinationIP);
+        trapMaxSent[i] = false;
+      } else {
+        Serial.println("Couldn't send SNMP Trap");
+      }
+    }
 
     if(!trapMinSent[i] && value < min){
-       if(snmp.sendTrapTo(trapMax, destinationIP, true, 2, 5000) != INVALID_SNMP_REQUEST_ID){ 
+       if(snmp.sendTrapTo(trapMin, destinationIP, true, 2, 5000) != INVALID_SNMP_REQUEST_ID){ 
           Serial.println("");
           Serial.print("Sent SNMP Trap Min CH");
           Serial.println(i+1);
@@ -632,8 +702,18 @@ void check_status()
           Serial.println("Couldn't send SNMP Trap");
       }
     }
-    if(trapMinSent[i] && value >= min)
-      trapMinSent[i] = false;
+    if(trapMinSent[i] && value >= (min + HISTERESIS_CURRENT)){
+      if(snmp.sendTrapTo(trapSafe, destinationIP, true, 2, 5000) != INVALID_SNMP_REQUEST_ID){ 
+        Serial.println("");
+        Serial.print("Sent SNMP Trap SAFE CH");
+        Serial.println(i+1);
+        Serial.println(destinationIP);
+        trapMinSent[i] = false;
+      } else {
+        Serial.println("Couldn't send SNMP Trap");
+      }
+
+    }
   }
 }
 
@@ -684,8 +764,14 @@ void SetIPConfig(){
     // Dirección IP
     glbConfig.GetIpConfig(IP_ADDRESS_ENUM, octets);
     IPAddress ip(octets);
+
+    octets[0] = glbConfig.GetIpMask(1);
+    octets[1] = glbConfig.GetIpMask(2);
+    octets[2] = glbConfig.GetIpMask(3);
+    octets[3] = glbConfig.GetIpMask(4);
+
     // Mascara
-    glbConfig.GetIpConfig(IP_MASK_ENUM, octets);
+    //glbConfig.GetIpConfig(IP_MASK_ENUM, octets);
     IPAddress mask(octets);
     // Gateway
     glbConfig.GetIpConfig(IP_GW_ENUM, octets);
@@ -735,9 +821,6 @@ float GetAverage(int channel, float value){
 
   output /= BUFFER_AVG;
 
-  if(channel == 1){
-    Serial.println(output);
-  }
   return output;
 }
 
@@ -751,6 +834,7 @@ float CalculateAdc(uint16_t x, uint8_t channel)
   if(channel == 1 || channel == 2){
     float current = (f - 3030) * 0.1176;
     current = current > CURRENT_MAX || current < -CURRENT_MAX ? 0 : current;
+    current = current > THRESHOLD_CURRENT || current < -THRESHOLD_CURRENT ? current : 0;
     return current; //(x - 2048) * 3.3 / 4096; //glbConfig.ADC_FACTOR(channel) * x * 3.3f / 4096;
   }
 
@@ -903,8 +987,10 @@ void handleLogin()
     </head>\
     <body>\
       <div>\
-      <h2>Sistema de monitoreo DC</h2>\
-        <form action='/login' method='POST'>Ingrese al sistema<br>\
+        <p style='font-size:5rem;margin-bottom:0.5rem;text-align:center;'>C4i</p>\
+        <h2 style='margin-left:10px;'>Sistema de monitoreo DC</h2>\
+        <form action='/login' method='POST'>\
+          <p style='margin:0px 0px 0px 12px;'>Ingrese al sistema</p>\
           <table>\
             <tbody>\
               <tr>\
@@ -917,7 +1003,7 @@ void handleLogin()
               </tr>\
             </tbody>\
           </table>\
-          <div class='container-right'>\
+          <div class='contenedor-center'>\
             <input type='submit' name='SUBMIT' value='Ingresar' style='padding: 2px 5px;'></form>\
           </div>\
           <p class='text-danger'>#MESSAGE#</p>\
@@ -1039,35 +1125,35 @@ void handleConfig(){
           <h3 class=\"subtitle\">Configuración de red</h3>\
           <div class=\"parameter-container\">\
               <label>Habilitar DHCP:</label>\
-              <input type=\"checkbox\" name=\"dhcp\" value=\"1\" #DHCP#/>\
+              <input type=\"checkbox\" name=\"dhcp\" value=\"1\" #DHCP# onchange=\"ChangeDhcp(this)\"/>\
           </div>\
           <div class=\"parameter-container\">\
               <label>Dirección IPV4:</label>&nbsp;\
-              <input name=\"txtip1\" class=\"octet\" value=\"#txtip1#\" /> . \
-              <input name=\"txtip2\" class=\"octet\" value=\"#txtip2#\" /> . \
-              <input name=\"txtip3\" class=\"octet\" value=\"#txtip3#\" /> . \
-              <input name=\"txtip4\" class=\"octet\" value=\"#txtip4#\" />\
+              <input name=\"txtip1\" class=\"octet staticip\" value=\"#txtip1#\" #DISABLED# /> . \
+              <input name=\"txtip2\" class=\"octet staticip\" value=\"#txtip2#\" #DISABLED# /> . \
+              <input name=\"txtip3\" class=\"octet staticip\" value=\"#txtip3#\" #DISABLED# /> . \
+              <input name=\"txtip4\" class=\"octet staticip\" value=\"#txtip4#\" #DISABLED# />\
           </div>\
           <div class=\"parameter-container\">\
               <label>Mascara de subred:</label>&nbsp;\
-              <input name=\"txtmask1\" class=\"octet\" value=\"#txtmask1#\" /> . \
-              <input name=\"txtmask2\" class=\"octet\" value=\"#txtmask2#\" /> . \
-              <input name=\"txtmask3\" class=\"octet\" value=\"#txtmask3#\" /> . \
-              <input name=\"txtmask4\" class=\"octet\" value=\"#txtmask4#\" />\
+              <input name=\"txtmask1\" class=\"octet staticip\" value=\"#txtmask1#\" #DISABLED# /> . \
+              <input name=\"txtmask2\" class=\"octet staticip\" value=\"#txtmask2#\" #DISABLED# /> . \
+              <input name=\"txtmask3\" class=\"octet staticip\" value=\"#txtmask3#\" #DISABLED# /> . \
+              <input name=\"txtmask4\" class=\"octet staticip\" value=\"#txtmask4#\" #DISABLED# />\
           </div>\
           <div class=\"parameter-container\">\
               <label>Puerta de enlace:</label>&nbsp;\
-              <input name=\"txtgw1\" class=\"octet\" value=\"#txtgw1#\" /> . \
-              <input name=\"txtgw2\" class=\"octet\" value=\"#txtgw2#\" /> . \
-              <input name=\"txtgw3\" class=\"octet\" value=\"#txtgw3#\" /> . \
-              <input name=\"txtgw4\" class=\"octet\" value=\"#txtgw4#\" />\
+              <input name=\"txtgw1\" class=\"octet staticip\" value=\"#txtgw1#\" #DISABLED# /> . \
+              <input name=\"txtgw2\" class=\"octet staticip\" value=\"#txtgw2#\" #DISABLED# /> . \
+              <input name=\"txtgw3\" class=\"octet staticip\" value=\"#txtgw3#\" #DISABLED# /> . \
+              <input name=\"txtgw4\" class=\"octet staticip\" value=\"#txtgw4#\" #DISABLED# />\
           </div>\
           <div class=\"parameter-container\">\
               <label>Servidor DNS:</label>&nbsp;\
-              <input name=\"txtdns1\" class=\"octet\" value=\"#txtdns1#\" /> . \
-              <input name=\"txtdns2\" class=\"octet\" value=\"#txtdns2#\" /> . \
-              <input name=\"txtdns3\" class=\"octet\" value=\"#txtdns3#\" /> . \
-              <input name=\"txtdns4\" class=\"octet\" value=\"#txtdns4#\" />\
+              <input name=\"txtdns1\" class=\"octet staticip\" value=\"#txtdns1#\" #DISABLED# /> . \
+              <input name=\"txtdns2\" class=\"octet staticip\" value=\"#txtdns2#\" #DISABLED# /> . \
+              <input name=\"txtdns3\" class=\"octet staticip\" value=\"#txtdns3#\" #DISABLED# /> . \
+              <input name=\"txtdns4\" class=\"octet staticip\" value=\"#txtdns4#\" #DISABLED# />\
           </div>\
           <!-- SNMP -->\
           <h3 class=\"subtitle\">Configuración SNMP</h3>\
@@ -1137,6 +1223,13 @@ void handleConfig(){
         if(confirm('Si reinicia a los valores de fabrica se perderán todos los parametros configurados.¿Esta seguro que quiere volver a los valores de fabrica?'))\
           window.location = \'reset\';\
       }\
+      function ChangeDhcp(cbox){\
+        const c = cbox.checked;\
+        const elements = document.querySelectorAll('.staticip');\
+        elements.forEach(element => {\
+            element.disabled = c;\
+        });\
+      }\
       </script>\
   </body>\
   </html>";
@@ -1144,7 +1237,9 @@ void handleConfig(){
   String data;
   byte octects[4];
 
-  content.replace("#DHCP#", glbConfig.GetDHCP() ? "checked" : "");
+  bool useDhcp = glbConfig.GetDHCP();
+  content.replace("#DHCP#", useDhcp ? "checked" : "");
+  content.replace("#DISABLED#", useDhcp ? "disabled='disabled'" : "");
 
   data = glbConfig.HOSTNAME();
   content.replace("#NAME#", data);
@@ -1349,9 +1444,11 @@ void handleReset(){
     </head>\
     <body>\
       <div class='contenedor-center' style='height:100vh;'>\
-        <h2>LOS VALORES DEL DISPOSITIVO HAN SIDO REINICIAR A FABRICA</h2>\
-        <div style='margin:30;'>\
-          <button type='button' onclick='reboot()'>Reiniciar dispositivo</button>\
+        <div>\
+          <h2>LOS VALORES DEL DISPOSITIVO HAN SIDO REINICIADOS A FABRICA</h2>\
+          <div style='display:flex;justify-content:center;margin:10;'>\
+            <button type='button' onclick='reboot()'>Reiniciar dispositivo</button>\
+          </div>\
         </div>\
       </div>\
       <script>\
