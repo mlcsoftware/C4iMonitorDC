@@ -212,7 +212,32 @@ class Configuration
       EEPROM.commit();
    }
 
-   int get
+   int getCalAddress(uint8_t channel, uint8_t point, bool x, bool y){
+      int address = -1;
+
+      if(x){
+         address = channel == 1 && point == 1 ? CONFIG_CAL_CH1_X1 : address;
+         address = channel == 2 && point == 1 ? CONFIG_CAL_CH2_X1 : address;
+         address = channel == 3 && point == 1 ? CONFIG_CAL_CH3_X1 : address;
+         address = channel == 4 && point == 1 ? CONFIG_CAL_CH4_X1 : address;
+         address = channel == 1 && point == 2 ? CONFIG_CAL_CH1_X2 : address;
+         address = channel == 2 && point == 2 ? CONFIG_CAL_CH2_X2 : address;
+         address = channel == 3 && point == 2 ? CONFIG_CAL_CH3_X2 : address;
+         address = channel == 4 && point == 2 ? CONFIG_CAL_CH4_X2 : address;
+      }
+      if(y){
+         address = channel == 1 && point == 1 ? CONFIG_CAL_CH1_Y1 : address;
+         address = channel == 2 && point == 1 ? CONFIG_CAL_CH2_Y1 : address;
+         address = channel == 3 && point == 1 ? CONFIG_CAL_CH3_Y1 : address;
+         address = channel == 4 && point == 1 ? CONFIG_CAL_CH4_Y1 : address;
+         address = channel == 1 && point == 2 ? CONFIG_CAL_CH1_Y2 : address;
+         address = channel == 2 && point == 2 ? CONFIG_CAL_CH2_Y2 : address;
+         address = channel == 3 && point == 2 ? CONFIG_CAL_CH3_Y2 : address;
+         address = channel == 4 && point == 2 ? CONFIG_CAL_CH4_Y2 : address;
+      }
+
+      return address;
+   }
 
    public:
 
@@ -478,31 +503,41 @@ class Configuration
    }
 
    float GetCalYPoint(uint8_t channel, uint8_t point){
-      int address = -1;
-      address = channel == 1 && point == 1 ? CONFIG_CAL_CH1_Y1 : address;
-      address = channel == 2 && point == 1 ? CONFIG_CAL_CH1_Y1 : address;
-      address = channel == 3 && point == 1 ? CONFIG_CAL_CH2_Y1 : address;
-      address = channel == 4 && point == 1 ? CONFIG_CAL_CH3_Y1 : address;
-      address = channel == 1 && point == 2 ? CONFIG_CAL_CH1_Y2 : address;
-      address = channel == 2 && point == 2 ? CONFIG_CAL_CH1_Y2 : address;
-      address = channel == 3 && point == 2 ? CONFIG_CAL_CH2_Y2 : address;
-      address = channel == 4 && point == 2 ? CONFIG_CAL_CH3_Y2 : address;
+      int address = getCalAddress(channel, point, false, true);
 
       return address < 0 ? 1 : read_float_parameter(address, -1, 0);
    }
 
    int GetCalXPoint(uint8_t channel, uint8_t point){
-      int address = -1;
-      address = channel == 1 && point == 1 ? CONFIG_CAL_CH1_X1 : address;
-      address = channel == 2 && point == 1 ? CONFIG_CAL_CH1_X1 : address;
-      address = channel == 3 && point == 1 ? CONFIG_CAL_CH2_X1 : address;
-      address = channel == 4 && point == 1 ? CONFIG_CAL_CH3_X1 : address;
-      address = channel == 1 && point == 2 ? CONFIG_CAL_CH1_X2 : address;
-      address = channel == 2 && point == 2 ? CONFIG_CAL_CH1_X2 : address;
-      address = channel == 3 && point == 2 ? CONFIG_CAL_CH2_X2 : address;
-      address = channel == 4 && point == 2 ? CONFIG_CAL_CH3_X2 : address;
+      int address = getCalAddress(channel, point, true, false);
 
       return address < 0 ? 1 : (int)read_float_parameter(address, -1, 0);
+   }
+
+   bool SetCalYPoint(uint8_t channel, uint8_t point, float value){
+      int address = getCalAddress(channel, point, false, true);
+
+      if(address < 0)
+         return false;
+
+      write_float_parameter(address, value);
+
+      float f = read_float_parameter(address, -1, 0);
+
+      return f == value;
+   }
+
+   bool SetCalXPoint(uint8_t channel, uint8_t point, int value){
+      int address = getCalAddress(channel, point, true, false);
+
+      if(address < 0)
+         return false;
+
+      write_float_parameter(address, (float)value);
+
+      float f = read_float_parameter(address, -1, 0);
+
+      return f == value;
    }
 
    float THRESHOLD_MAX(int channel, float threshold = -1){

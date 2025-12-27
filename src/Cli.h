@@ -66,6 +66,8 @@ class Cli
          cmd_read(cmd_received, length);
       if(cmd_received[0] == "factor")
          cmd_factor(cmd_received, length);
+      if(cmd_received[0] == "calibrate")
+         cmd_calibrate(cmd_received, length);
    }
 
    void receive_char()
@@ -285,26 +287,53 @@ class Cli
 
    void cmd_show(String *parameter, int length)
    {
-      Serial.println("Monitor DC V/I");
-      Serial.println("C4i GP-IoT-48VDC2-100ADC2");
-      Serial.print("Versión ");
-      Serial.println(SENSOR_VERSION);
-      Serial.println();
-      Serial.println("Configuration");
-      Serial.println("----------------------------");
+      if(length == 1){
+         Serial.println("Monitor DC V/I");
+         Serial.println("C4i GP-IoT-48VDC2-100ADC2");
+         Serial.print("Versión ");
+         Serial.println(SENSOR_VERSION);
+         Serial.println();
+         Serial.println("Configuration");
+         Serial.println("----------------------------");
 
-      // rpm
-      Serial.print("Comunidad SNMP:");
-      Serial.println(glbConfig.SNMP_COMMUNITY());
-      Serial.print("Dirección IP: ");
-      Serial.println(ETH.localIP());
-      Serial.print("Mascara de subred:");
-      Serial.println(ETH.subnetMask());
-      Serial.print("Puerta de enlace:");
-      Serial.println(ETH.gatewayIP());
-      Serial.print("DNS:");
-      Serial.println(ETH.dnsIP());
-      Serial.println();
+         Serial.print("Comunidad SNMP:");
+         Serial.println(glbConfig.SNMP_COMMUNITY());
+         Serial.print("Dirección IP: ");
+         Serial.println(ETH.localIP());
+         Serial.print("Mascara de subred:");
+         Serial.println(ETH.subnetMask());
+         Serial.print("Puerta de enlace:");
+         Serial.println(ETH.gatewayIP());
+         Serial.print("DNS:");
+         Serial.println(ETH.dnsIP());
+         Serial.println();
+      }
+      if(length == 2 && parameter[1] == "calibrate"){
+         show_calibrate();
+      }
+   }
+
+   void show_calibrate(){
+      for(int channel=1;channel<5;channel++)
+         show_calibrate_channel(channel);
+   }
+
+   void show_calibrate_channel(int channel){
+      Serial.print("Calibracion canal ");
+      Serial.println(channel);
+      Serial.println("");
+      for(int point=1;point<3;point++){
+         Serial.print("x");
+         Serial.print(point);
+         Serial.print(": ");
+         Serial.println(glbConfig.GetCalXPoint(channel, point));
+         Serial.print("y");
+         Serial.print(point);
+         Serial.print(": ");
+         Serial.print(glbConfig.GetCalYPoint(channel, point));
+         Serial.println(channel == 1 || channel == 2 ? " A" : " V");
+         Serial.println("");
+      }
    }
 
    void show_prompt()
@@ -327,8 +356,124 @@ class Cli
          Serial.println("Modo de uso: read ch1|ch2|ch3|ch4");
          Serial.println("canal: Nombre del canal de donde leer el valor.");
       }
+      if(cmd == "calibrate")
+      {
+         Serial.println("Calibrate, calibra los canales analogicos");
+         Serial.println("Modo de uso: calibrate ch1|ch2|ch3|ch4 punto1 punto2");
+         Serial.println("canal: Nombre del canal que se desea calibrar.");
+         Serial.println("punto1: Valor de tensión/corriente del punto 1");
+         Serial.println("punto2: Valor de tensión/corriente del punto 2");
+      }
    }
 
+   void cmd_calibrate(String *parameter, int length)
+   {
+      if(length < 4){
+         show_help("calibrate");
+         return;
+      }
+      int channel = getChannelNumberByName(parameter[1]);
+      if(channel < 0)
+      {
+         show_help("calibrate");
+         return;
+      }
+      // captura los valores de calibracion
+      float values[2];
+      values[0] = parameter[2].toFloat();
+      values[1] = parameter[3].toFloat();
+
+      // Solicita confirmación
+      Serial.println();
+      Serial.println("##########################################################");
+      Serial.println("#                                                        #");
+      Serial.println("#               ADVERTENCIA CALIBRACION                  #");
+      Serial.println("#                                                        #");
+      Serial.println("##########################################################");
+      Serial.println();
+      Serial.println("Va a cambiar la calibración del dispositivo, es podría dañar el funcionamiento del dispositivo.");
+      Serial.print("¿Está seguro que quiere cambiar la calibración? [s/N]:");
+      // Primero vacia el buffer de la comunicación serie
+      while(Serial.available())
+         Serial.read();
+      // Espera hasta que se presione una tecla
+      while(!Serial.available());
+      char response = Serial.read();
+      // Si se cancela sale
+      if( (response != 's') && (response != 'S') )
+         return;
+      
+      Calibrate(channel, values);
+
+      return;
+   }
+
+   void Calibrate(int channel, float *value){
+      for(int i=0;i<2;i++){
+         Serial.print("Calibración del PUNTO ");
+         Serial.println(i+1);
+         Serial.println();
+         Serial.print("Ajuste el valor de calibración ");
+         Serial.print(*value);
+         Serial.print(channel == 1 || channel == 2 ? " A" : " V");
+         Serial.print(", y presione 'c' para calibrar o 'x' para salir");
+         // Primero vacia el buffer de la comunicación serie
+         while(Serial.available())
+            Serial.read();
+         // Espera hasta que se presione una tecla
+         while(!Serial.available());
+         char response = Serial.read();
+         // Se fija si tiene que salir
+         if(response == 'x')
+         {
+            Serial.println("Calibracion cancelada.");
+            return;
+         }
+         // Mensaje calibrando
+         Serial.println("Calibrando, por favor espere...");
+         // Guarda valor x
+         int x = GetCalibrateXAvg(channel);
+         if(!glbConfig.SetCalXPoint(channel, i+1, x) || !glbConfig.SetCalYPoint(channel, i+1, *value)){
+            Serial.println("Ha ocurrido un error al intentar calibrar el dispositivo.");
+            return;
+         }
+         Serial.println("Calibración correcta");
+         Serial.println("");
+
+         value++;
+      }
+
+      Serial.print("El canal ");
+      Serial.print(channel);
+      Serial.println(" ha sido calibrado correctamente");
+   }
+
+   int GetCalibrateXAvg(int channel){
+      uint8_t adc = -1;
+      adc == channel == 1 ? ADC_CH1 : adc;
+      adc == channel == 2 ? ADC_CH2 : adc;
+      adc == channel == 3 ? ADC_CH3 : adc;
+      adc == channel == 4 ? ADC_CH4 : adc;
+      int avg = 0;
+
+      for(int i=0;i<BUFFER_AVG;i++)
+         avg += analogRead(adc);
+
+      return BUFFER_AVG > 0 ? (int)(avg / BUFFER_AVG) : 0;
+   }
+
+   int getChannelNumberByName(String name){
+      if(name == "ch1")
+         return 1;
+      if(name == "ch2")
+         return 2;
+      if(name == "ch3")
+         return 3;
+      if(name == "ch4")
+         return 4;
+
+      return -1;
+   }
 
    public:
    void begin()

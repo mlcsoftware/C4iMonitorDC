@@ -831,15 +831,8 @@ float CalculateAdc(uint16_t x, uint8_t channel)
 
   float f = GetAverage(channel, x);
 
-  if(channel == 1 || channel == 2){
-    float current = (f - 3030) * 0.1176;
-    current = current > CURRENT_MAX || current < -CURRENT_MAX ? 0 : current;
-    current = current > THRESHOLD_CURRENT || current < -THRESHOLD_CURRENT ? current : 0;
-    return current; //(x - 2048) * 3.3 / 4096; //glbConfig.ADC_FACTOR(channel) * x * 3.3f / 4096;
-  }
-
-  if(channel == 3 || channel == 4)
-    return glbConfig.ADC_FACTOR(channel) * f * 3.3f / 4096;
+  // if(channel == 3 || channel == 4)
+  //   return glbConfig.ADC_FACTOR(channel) * f * 3.3f / 4096;
 
   // Obtiene puntos de calibración
   int x1 = glbConfig.GetCalXPoint(channel, 1);
@@ -852,7 +845,14 @@ float CalculateAdc(uint16_t x, uint8_t channel)
   // Calcula pendiente
   float m = dy / dx;
   // Calcula valor
-  float corrected = m * (x - x1) + y1;
+  float corrected = m * (f - x1) + y1;
+
+  if(channel == 1 || channel == 2){
+    //float current = (f - 3030) * 0.1176;
+    corrected = corrected > CURRENT_MAX || corrected < -CURRENT_MAX ? 0 : corrected;
+    corrected = corrected > THRESHOLD_CURRENT || corrected < -THRESHOLD_CURRENT ? corrected : 0;
+    return corrected; //(x - 2048) * 3.3 / 4096; //glbConfig.ADC_FACTOR(channel) * x * 3.3f / 4096;
+  }
 
   return corrected;
 }
