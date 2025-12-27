@@ -212,6 +212,8 @@ class Configuration
       EEPROM.commit();
    }
 
+   int get
+
    public:
 
    void GetIpConfig(uint8_t selector, uint8_t *octets){
@@ -500,7 +502,7 @@ class Configuration
       address = channel == 3 && point == 2 ? CONFIG_CAL_CH2_X2 : address;
       address = channel == 4 && point == 2 ? CONFIG_CAL_CH3_X2 : address;
 
-      return address < 0 ? 1 : read_int_parameter(address, 0);
+      return address < 0 ? 1 : (int)read_float_parameter(address, -1, 0);
    }
 
    float THRESHOLD_MAX(int channel, float threshold = -1){
@@ -528,19 +530,6 @@ class Configuration
 
       return read_float_parameter(address, threshold, 1000);
    }
-
-   /*
-   int HW_CHANNELS(int channels)
-   {
-      write_int_parameter(CONFIG_NUM_CHANNELS, channels);
-      return read_int_parameter(CONFIG_NUM_CHANNELS, NUM_CHANNELS_DEFAULT);
-   }
-   
-   float CAL_CURRENT(float current = -1)
-   {
-      return read_float_parameter(CONFIG_CAL_CURRENT_ADDRESS, current, CAL_CURRENT_DEFAULT);
-   }
-   */
 
 // Variables de sistema
 };

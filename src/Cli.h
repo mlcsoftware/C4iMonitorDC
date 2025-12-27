@@ -185,6 +185,22 @@ class Cli
          Serial.print("Canal V4 [V]:");
          Serial.println(VoltageCH4);
       }
+      if(channel == "1"){
+         Serial.print("Canal CH1:");
+         Serial.println(analogRead(A0));
+      }
+      if(channel == "2"){
+         Serial.print("Canal CH2:");
+         Serial.println(analogRead(A3));
+      }
+      if(channel == "3"){
+         Serial.print("Canal CH3:");
+         Serial.println(analogRead(A6));
+      }
+      if(channel == "4"){
+         Serial.print("Canal CH4:");
+         Serial.println(analogRead(A7));
+      }
    }
 
    void cmd_factor(String *parameter, int length){
