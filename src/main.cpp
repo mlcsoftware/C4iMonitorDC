@@ -841,9 +841,9 @@ float CalculateAdc(uint16_t x, uint8_t channel)
   float y2 = glbConfig.GetCalYPoint(channel, 2);
   // Calcula deltas
   int dx = (x2 - x1) != 0 ? x2 - x1 : 1;
-  int dy = y2 - y1;
+  float dy = y2 - y1;
   // Calcula pendiente
-  float m = dy / dx;
+  float m = dy / (float)dx;
   // Calcula valor
   float corrected = m * (f - x1) + y1;
 

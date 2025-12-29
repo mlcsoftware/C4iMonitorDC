@@ -72,7 +72,7 @@ class Cli
 
    void receive_char()
    {
-      String parameters[3];
+      String parameters[5];
 
       char received = Serial.read();
 
@@ -433,6 +433,9 @@ class Cli
          Serial.println("Calibrando, por favor espere...");
          // Guarda valor x
          int x = GetCalibrateXAvg(channel);
+         if(x < 0)
+            return;
+
          if(!glbConfig.SetCalXPoint(channel, i+1, x) || !glbConfig.SetCalYPoint(channel, i+1, *value)){
             Serial.println("Ha ocurrido un error al intentar calibrar el dispositivo.");
             return;
@@ -449,12 +452,20 @@ class Cli
    }
 
    int GetCalibrateXAvg(int channel){
-      uint8_t adc = -1;
-      adc == channel == 1 ? ADC_CH1 : adc;
-      adc == channel == 2 ? ADC_CH2 : adc;
-      adc == channel == 3 ? ADC_CH3 : adc;
-      adc == channel == 4 ? ADC_CH4 : adc;
+      uint8_t adc = 255;
+      adc = channel == 1 ? ADC_CH1 : adc;
+      adc = channel == 2 ? ADC_CH2 : adc;
+      adc = channel == 3 ? ADC_CH3 : adc;
+      adc = channel == 4 ? ADC_CH4 : adc;
       int avg = 0;
+
+      if(adc == 255)
+      {
+         Serial.println("Error de calibración");
+         Serial.print("Numero de canal incorrecto Canal ");
+         Serial.println(channel);
+         return -1;
+      }
 
       for(int i=0;i<BUFFER_AVG;i++)
          avg += analogRead(adc);
