@@ -52,22 +52,42 @@ class Cli
 
    void process_cmd(String *cmd_received, int length)
    {
-      if(cmd_received[0] == "debug")
+      if(length == 0 || cmd_received[0].length() == 0)
+         return;
+
+      if(cmd_received[0] == "debug"){
          cmd_debug(cmd_received, length);
-      if(cmd_received[0] == "name")
+         return;
+      }
+      if(cmd_received[0] == "name"){
          cmd_name(cmd_received, length);
-      if(cmd_received[0] == "reset")
+         return;
+      }
+      if(cmd_received[0] == "reset"){
          cmd_reset(cmd_received, length);
-      if(cmd_received[0] == "reboot")
+         return;
+      }
+      if(cmd_received[0] == "reboot"){
          cmd_reboot(cmd_received, length);
-      if(cmd_received[0] == "show")
+         return;
+      }
+      if(cmd_received[0] == "show"){
          cmd_show(cmd_received, length);
-      if(cmd_received[0] == "read")
+         return;
+      }
+      if(cmd_received[0] == "read"){
          cmd_read(cmd_received, length);
-      if(cmd_received[0] == "factor")
+         return;
+      }
+      if(cmd_received[0] == "factor"){
          cmd_factor(cmd_received, length);
-      if(cmd_received[0] == "calibrate")
+         return;
+      }
+      if(cmd_received[0] == "calibrate"){
          cmd_calibrate(cmd_received, length);
+         return;
+      }
+      Serial.println("Comando incorrecto");
    }
 
    void receive_char()
@@ -76,12 +96,13 @@ class Cli
 
       char received = Serial.read();
 
-      if( (received != '\r') && (received != '\n') )
+      if( (received != '\r') && (received != '\n') && (received != KEYCODE_BS) )
          Serial.print(received);
 
       if(received == KEYCODE_BS)
       {
          if(sReceived.length() > 0){
+            Serial.print(received);
             Serial.print(" ");
             Serial.print(received);
             sReceived.remove(sReceived.length() - 1);
