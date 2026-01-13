@@ -839,6 +839,13 @@ float CalculateAdc(uint16_t x, uint8_t channel)
   int x2 = glbConfig.GetCalXPoint(channel, 2);
   float y1 = glbConfig.GetCalYPoint(channel, 1);
   float y2 = glbConfig.GetCalYPoint(channel, 2);
+  // Verifica si esta en el primer tramo
+  if(x < x1){
+    x2 = x1;
+    y2 = y1;
+    x1 = 0;
+    y1 = 0;
+  }
   // Calcula deltas
   int dx = (x2 - x1) != 0 ? x2 - x1 : 1;
   float dy = y2 - y1;
