@@ -108,6 +108,11 @@
 #include <SNMP_Agent.h>
 #include <SNMPTrap.h>
 #include <Cli.h>
+#include <ESP32Ping.h>
+
+const char* ssid = "Wifi1";
+const char* password = "Hqv75321";
+const IPAddress remote_ip(10, 1, 2, 70);
 
 WebServer server(80);
 WiFiUDP udp;
@@ -165,6 +170,7 @@ int ch1BufferCounter = 0;
 int ch2BufferCounter = 0;
 int ch3BufferCounter = 0;
 int ch4BufferCounter = 0;
+long ping_timer_start = 0;
 
 // Enter a MAC address and IP address for your controller below.
 #define NUMBER_OF_MAC      20
@@ -501,9 +507,19 @@ void setup()
   if(ESP32_ENC_isConnected())
     LoadServer();
 
-  digitalWrite(LED, HIGH);
-
   cli.begin();
+
+  WiFi.begin(ssid, password);
+
+    
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(200);
+    Serial.print(".");
+    digitalWrite(LED, !digitalRead(LED));
+  }
+  Serial.println("WiFi connected");
+
+  digitalWrite(LED, HIGH);
 }
 
 void LoadServer(){
@@ -754,6 +770,21 @@ void loop()
     // }
   }
   delay(10);
+  // Ping
+  if((millis() - ping_timer_start) > 2000){
+  // Ping Google DNS
+    if(Ping.ping(remote_ip)) {
+      Serial.println("Ping successful!");
+      Serial.print("Destination: ");
+      Serial.print(remote_ip);
+      Serial.print(" Avg Time: ");
+      Serial.print(Ping.averageTime());
+      Serial.println(" ms");
+    } else {
+      Serial.println("Ping failed :(");
+    }
+    ping_timer_start = millis();
+  }
 }
 
 void SetIPConfig(){
