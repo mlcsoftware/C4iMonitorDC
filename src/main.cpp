@@ -108,15 +108,14 @@
 #include <SNMP_Agent.h>
 #include <SNMPTrap.h>
 #include <Cli.h>
-#include <ESP32Ping.h>
 
-const char* ssid = "Wifi1";
-const char* password = "Hqv75321";
 const IPAddress remote_ip(10, 1, 2, 70);
 
 WebServer server(80);
 WiFiUDP udp;
 SNMPAgent snmp = SNMPAgent("public", "private");
+bool WifiConnected = false;
+long WifiVerifyStart = 0;
 
 SNMPTrap* trapCH1Max = new SNMPTrap(glbConfig.SNMP_COMMUNITY().c_str(), SNMP_VERSION_2C);
 SNMPTrap* trapCH1Min = new SNMPTrap(glbConfig.SNMP_COMMUNITY().c_str(), SNMP_VERSION_2C);
@@ -211,6 +210,7 @@ void handleConfig();
 void handleResetPassword();
 void handleReboot();
 void handleReset();
+bool WifiCheck();
 
 String HtmlStyle = F("\
       <style>\
@@ -509,15 +509,10 @@ void setup()
 
   cli.begin();
 
-  WiFi.begin(ssid, password);
-
-    
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(200);
-    Serial.print(".");
-    digitalWrite(LED, !digitalRead(LED));
-  }
-  Serial.println("WiFi connected");
+  if(glbConfig.WIFISSID() != "")
+    WiFi.begin(glbConfig.WIFISSID(), glbConfig.WIFIPWD());
+  else
+    Serial.println("\nInterfaz inalambrica deshabilitar. SSID no configurado");
 
   digitalWrite(LED, HIGH);
 }
@@ -733,9 +728,40 @@ void check_status()
   }
 }
 
+bool WifiCheck(){
+  if(glbConfig.WIFISSID() == "")
+    return true;
+
+  if((millis() - WifiVerifyStart) < 3000)
+    return true;
+
+  bool connected = WiFi.status() == WL_CONNECTED;
+  if(connected && !WifiConnected){
+    Serial.print("Wifi conectado a ");
+    Serial.println(glbConfig.WIFISSID());
+    Serial.println("");
+    Serial.print("Dirección IP Interfaz Inalambrica: ");
+    Serial.println(WiFi.localIP());
+    Serial.print("Mascara de subred:");
+    Serial.println(WiFi.subnetMask());
+    Serial.print("Puerta de enlace:");
+    Serial.println(WiFi.gatewayIP());
+    WifiConnected = true;
+  }
+  if(connected)
+    return true;
+
+  WiFi.disconnect();
+  WiFi.reconnect();
+
+  return false;
+}
+
 void loop()
 {
-  
+  // Verifica si esta conectado en wifi
+  WifiCheck();
+
   // Lee la linea de comando
   cli.Read();
 
@@ -770,21 +796,6 @@ void loop()
     // }
   }
   delay(10);
-  // Ping
-  if((millis() - ping_timer_start) > 2000){
-  // Ping Google DNS
-    if(Ping.ping(remote_ip)) {
-      Serial.println("Ping successful!");
-      Serial.print("Destination: ");
-      Serial.print(remote_ip);
-      Serial.print(" Avg Time: ");
-      Serial.print(Ping.averageTime());
-      Serial.println(" ms");
-    } else {
-      Serial.println("Ping failed :(");
-    }
-    ping_timer_start = millis();
-  }
 }
 
 void SetIPConfig(){
@@ -1072,7 +1083,6 @@ void handleConfig(){
   if(server.method() == HTTP_POST){
     if(server.hasArg("txtHostName"))
       glbConfig.HOSTNAME(server.arg("txtHostName"));
-
       
     octets[0] = server.hasArg("txtip1") ? (uint8_t)server.arg("txtip1").toInt() : CONFIG_IPADDRESS_1_DEFAULT;
     octets[1] = server.hasArg("txtip2") ? (uint8_t)server.arg("txtip2").toInt() : CONFIG_IPADDRESS_2_DEFAULT;
@@ -1080,13 +1090,11 @@ void handleConfig(){
     octets[3] = server.hasArg("txtip4") ? (uint8_t)server.arg("txtip4").toInt() : CONFIG_IPADDRESS_4_DEFAULT;
     glbConfig.SetIpConfig(IP_ADDRESS_ENUM, octets);
 
-
     octets[0] = server.hasArg("txtmask1") ? (uint8_t)server.arg("txtmask1").toInt() : CONFIG_MASK_1_DEFAULT;
     octets[1] = server.hasArg("txtmask2") ? (uint8_t)server.arg("txtmask2").toInt() : CONFIG_MASK_2_DEFAULT;
     octets[2] = server.hasArg("txtmask3") ? (uint8_t)server.arg("txtmask3").toInt() : CONFIG_MASK_3_DEFAULT;
     octets[3] = server.hasArg("txtmask4") ? (uint8_t)server.arg("txtmask4").toInt() : CONFIG_MASK_4_DEFAULT;
     glbConfig.SetIpConfig(IP_MASK_ENUM, octets);
-
 
     octets[0] = server.hasArg("txtgw1") ? (uint8_t)server.arg("txtgw1").toInt() : CONFIG_GW_1_DEFAULT;
     octets[1] = server.hasArg("txtgw2") ? (uint8_t)server.arg("txtgw2").toInt() : CONFIG_GW_2_DEFAULT;
@@ -1095,6 +1103,33 @@ void handleConfig(){
     glbConfig.SetIpConfig(IP_GW_ENUM, octets);
       
     glbConfig.SetDCHP(server.hasArg("dhcp") && server.arg("dhcp") == "1");
+      
+    if(server.hasArg("ssid"))
+      glbConfig.WIFISSID(server.arg("ssid"));
+    if(server.hasArg("ssidpwd"))
+      glbConfig.WIFIPWD(server.arg("wifipwd"));
+
+    octets[0] = server.hasArg("txtwifiip1") ? (uint8_t)server.arg("txtwifiip1").toInt() : CONFIG_WIFI_IPADDRESS_1_DEFAULT;
+    octets[1] = server.hasArg("txtwifiip2") ? (uint8_t)server.arg("txtwifiip2").toInt() : CONFIG_WIFI_IPADDRESS_2_DEFAULT;
+    octets[2] = server.hasArg("txtwifiip3") ? (uint8_t)server.arg("txtwifiip3").toInt() : CONFIG_WIFI_IPADDRESS_3_DEFAULT;
+    octets[3] = server.hasArg("txtwifiip4") ? (uint8_t)server.arg("txtwifiip4").toInt() : CONFIG_WIFI_IPADDRESS_4_DEFAULT;
+    glbConfig.SetIpConfig(IP_WIFI_ADDRESS_ENUM, octets);
+
+
+    octets[0] = server.hasArg("txtwifimask1") ? (uint8_t)server.arg("txtwifimask1").toInt() : CONFIG_WIFI_MASK_1_DEFAULT;
+    octets[1] = server.hasArg("txtwifimask2") ? (uint8_t)server.arg("txtwifimask2").toInt() : CONFIG_WIFI_MASK_2_DEFAULT;
+    octets[2] = server.hasArg("txtwifimask3") ? (uint8_t)server.arg("txtwifimask3").toInt() : CONFIG_WIFI_MASK_3_DEFAULT;
+    octets[3] = server.hasArg("txtwifimask4") ? (uint8_t)server.arg("txtwifimask4").toInt() : CONFIG_WIFI_MASK_4_DEFAULT;
+    glbConfig.SetIpConfig(IP_WIFI_MASK_ENUM, octets);
+
+
+    octets[0] = server.hasArg("txtwifigw1") ? (uint8_t)server.arg("txtwifigw1").toInt() : CONFIG_WIFI_GW_1_DEFAULT;
+    octets[1] = server.hasArg("txtwifigw2") ? (uint8_t)server.arg("txtwifigw2").toInt() : CONFIG_WIFI_GW_2_DEFAULT;
+    octets[2] = server.hasArg("txtwifigw3") ? (uint8_t)server.arg("txtwifigw3").toInt() : CONFIG_WIFI_GW_3_DEFAULT;
+    octets[3] = server.hasArg("txtwifigw4") ? (uint8_t)server.arg("txtwifigw4").toInt() : CONFIG_WIFI_GW_4_DEFAULT;
+    glbConfig.SetIpConfig(IP_WIFI_GW_ENUM, octets);
+      
+    glbConfig.SetWifiDHCP(server.hasArg("wifidhcp") && server.arg("wifidhcp") == "1");
 
     octets[0] = server.hasArg("txtdns1") ? (uint8_t)server.arg("txtdns1").toInt() : CONFIG_DNS_1_DEFAULT;
     octets[1] = server.hasArg("txtdns2") ? (uint8_t)server.arg("txtdns2").toInt() : CONFIG_DNS_2_DEFAULT;
@@ -1148,7 +1183,7 @@ void handleConfig(){
       " + GetHtmlMenu("CONFIGURATION") + "\
       <h1 class=\"title\">Configuración</h1>\
       <form method=\"post\" action=\"configuration\">\
-          "+ message +"\
+          "+ message + "\
           <!-- CONFIGURA NOMBRE DEL HOST -->\
           <h3 class=\"subtitle\">General</h3>\
           <div class=\"parameter-container\">\
@@ -1192,6 +1227,41 @@ void handleConfig(){
               <input name=\"txtdns2\" class=\"octet staticip\" value=\"#txtdns2#\" #DISABLED# /> . \
               <input name=\"txtdns3\" class=\"octet staticip\" value=\"#txtdns3#\" #DISABLED# /> . \
               <input name=\"txtdns4\" class=\"octet staticip\" value=\"#txtdns4#\" #DISABLED# />\
+          </div>\
+          <!-- CONFIGURACION WIFI -->\
+          <h3 class=\"subtitle\">Configuración interface inalambrica</h3>\
+          <div class=\"parameter-container\">\
+              <label>SSID:</label>\
+              <input name=\"ssid\" value=\"#ssid#\" />\
+          </div>\
+          <div class=\"parameter-container\">\
+              <label>contraseña:</label>\
+              <input name=\"ssidpwd\" value=\"#ssidpwd#\" />\
+          </div>\
+          <div class=\"parameter-container\">\
+              <label>Habilitar DHCP:</label>\
+              <input type=\"checkbox\" name=\"wifidhcp\" value=\"1\" #WIFIDHCP# onchange=\"ChangeWifiDhcp(this)\"/>\
+          </div>\
+          <div class=\"parameter-container\">\
+              <label>Dirección IPV4:</label>&nbsp;\
+              <input name=\"txtwifiip1\" class=\"octet wifistaticip\" value=\"#txtwifiip1#\" #WIFIDISABLED# /> . \
+              <input name=\"txtwifiip2\" class=\"octet wifistaticip\" value=\"#txtwifiip2#\" #WIFIDISABLED# /> . \
+              <input name=\"txtwifiip3\" class=\"octet wifistaticip\" value=\"#txtwifiip3#\" #WIFIDISABLED# /> . \
+              <input name=\"txtwifiip4\" class=\"octet wifistaticip\" value=\"#txtwifiip4#\" #WIFIDISABLED# />\
+          </div>\
+          <div class=\"parameter-container\">\
+              <label>Mascara de subred:</label>&nbsp;\
+              <input name=\"txtwifimask1\" class=\"octet wifistaticip\" value=\"#txtwifimask1#\" #WIFIDISABLED# /> . \
+              <input name=\"txtwifimask2\" class=\"octet wifistaticip\" value=\"#txtwifimask2#\" #WIFIDISABLED# /> . \
+              <input name=\"txtwifimask3\" class=\"octet wifistaticip\" value=\"#txtwifimask3#\" #WIFIDISABLED# /> . \
+              <input name=\"txtwifimask4\" class=\"octet wifistaticip\" value=\"#txtwifimask4#\" #WIFIDISABLED# />\
+          </div>\
+          <div class=\"parameter-container\">\
+              <label>Puerta de enlace:</label>&nbsp;\
+              <input name=\"txtwifigw1\" class=\"octet wifistaticip\" value=\"#txtwifigw1#\" #WIFIDISABLED# /> . \
+              <input name=\"txtwifigw2\" class=\"octet wifistaticip\" value=\"#txtwifigw2#\" #WIFIDISABLED# /> . \
+              <input name=\"txtwifigw3\" class=\"octet wifistaticip\" value=\"#txtwifigw3#\" #WIFIDISABLED# /> . \
+              <input name=\"txtwifigw4\" class=\"octet wifistaticip\" value=\"#txtwifigw4#\" #WIFIDISABLED# />\
           </div>\
           <!-- SNMP -->\
           <h3 class=\"subtitle\">Configuración SNMP</h3>\
@@ -1268,6 +1338,13 @@ void handleConfig(){
             element.disabled = c;\
         });\
       }\
+      function ChangeWifiDhcp(cbox){\
+        const c = cbox.checked;\
+        const elements = document.querySelectorAll('.wifistaticip');\
+        elements.forEach(element => {\
+            element.disabled = c;\
+        });\
+      }\
       </script>\
   </body>\
   </html>";
@@ -1276,8 +1353,11 @@ void handleConfig(){
   byte octects[4];
 
   bool useDhcp = glbConfig.GetDHCP();
+  bool useWifiDhcp = glbConfig.GetWifiDHCP();
   content.replace("#DHCP#", useDhcp ? "checked" : "");
+  content.replace("#WIFIDHCP#", useWifiDhcp ? "checked" : "");
   content.replace("#DISABLED#", useDhcp ? "disabled='disabled'" : "");
+  content.replace("#WIFIDISABLED#", useWifiDhcp ? "disabled='disabled'" : "");
 
   data = glbConfig.HOSTNAME();
   content.replace("#NAME#", data);
@@ -1319,6 +1399,41 @@ void handleConfig(){
   content.replace("#txtdns3#", data);
   data = String(octects[3]);
   content.replace("#txtdns4#", data);
+
+  // SSID
+  content.replace("#ssid#", glbConfig.WIFISSID());
+  // WIFI PWD
+  content.replace("#wifipwd#", glbConfig.WIFIPWD());
+
+  glbConfig.GetIpConfig(IP_WIFI_ADDRESS_ENUM, octects);
+  data = String(octects[1]);
+  content.replace("#txtwifiip1#", data);
+  data = String(octects[2]);
+  content.replace("#txtwifiip2#", data);
+  data = String(octects[3]);
+  content.replace("#txtwifiip3#", data);
+  data = String(octects[4]);
+  content.replace("#txtwifiip4#", data);
+
+  glbConfig.GetIpConfig(IP_WIFI_MASK_ENUM, octects);
+  data = String(octects[1]);
+  content.replace("#txtwifimask1#", data);
+  data = String(octects[2]);
+  content.replace("#txtwifimask2#", data);
+  data = String(octects[3]);
+  content.replace("#txtwifimask3#", data);
+  data = String(octects[4]);
+  content.replace("#txtwifimask4#", data);
+
+  glbConfig.GetIpConfig(IP_WIFI_GW_ENUM, octects);
+  data = String(octects[1]);
+  content.replace("#txtwifigw1#", data);
+  data = String(octects[2]);
+  content.replace("#txtwifigw2#", data);
+  data = String(octects[3]);
+  content.replace("#txtwifigw3#", data);
+  data = String(octects[4]);
+  content.replace("#txtwifigw4#", data);
 
   data = glbConfig.SNMP_COMMUNITY();
   content.replace("#community#", data);

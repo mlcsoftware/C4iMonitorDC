@@ -64,6 +64,21 @@
 #define CONFIG_TRAP_2                  CONFIG_TRAP_1 + CONFIG_CHAR_SIZE
 #define CONFIG_TRAP_3                  CONFIG_TRAP_2 + CONFIG_CHAR_SIZE
 #define CONFIG_TRAP_4                  CONFIG_TRAP_3 + CONFIG_CHAR_SIZE
+#define CONFIG_WIFI_IPADDRESS_1             CONFIG_TRAP_4 + CONFIG_CHAR_SIZE
+#define CONFIG_WIFI_IPADDRESS_2             CONFIG_WIFI_IPADDRESS_1 + CONFIG_CHAR_SIZE
+#define CONFIG_WIFI_IPADDRESS_3             CONFIG_WIFI_IPADDRESS_2 + CONFIG_CHAR_SIZE
+#define CONFIG_WIFI_IPADDRESS_4             CONFIG_WIFI_IPADDRESS_3 + CONFIG_CHAR_SIZE
+#define CONFIG_WIFI_MASK_1                  CONFIG_WIFI_IPADDRESS_4 + CONFIG_CHAR_SIZE
+#define CONFIG_WIFI_MASK_2                  CONFIG_WIFI_MASK_1 + CONFIG_CHAR_SIZE
+#define CONFIG_WIFI_MASK_3                  CONFIG_WIFI_MASK_2 + CONFIG_CHAR_SIZE
+#define CONFIG_WIFI_MASK_4                  CONFIG_WIFI_MASK_3 + CONFIG_CHAR_SIZE
+#define CONFIG_WIFI_GW_1                    CONFIG_WIFI_MASK_4 + CONFIG_CHAR_SIZE
+#define CONFIG_WIFI_GW_2                    CONFIG_WIFI_GW_1 + CONFIG_CHAR_SIZE
+#define CONFIG_WIFI_GW_3                    CONFIG_WIFI_GW_2 + CONFIG_CHAR_SIZE
+#define CONFIG_WIFI_GW_4                    CONFIG_WIFI_GW_3 + CONFIG_CHAR_SIZE
+#define CONFIG_WIFI_DHCP                    CONFIG_WIFI_GW_4 + CONFIG_CHAR_SIZE
+#define CONFIG_WIFI_SSID                     CONFIG_WIFI_DHCP + CONFIG_CHAR_SIZE
+#define CONFIG_WIFI_PWD                      CONFIG_WIFI_SSID + CONFIG_CHAR50_SIZE
 
 #define CONFIG_IPADDRESS_1_DEFAULT     192
 #define CONFIG_IPADDRESS_2_DEFAULT     168
@@ -78,6 +93,19 @@
 #define CONFIG_GW_3_DEFAULT            0
 #define CONFIG_GW_4_DEFAULT            1
 #define CONFIG_DHCP_DEFAULT            0
+#define CONFIG_WIFI_IPADDRESS_1_DEFAULT     192
+#define CONFIG_WIFI_IPADDRESS_2_DEFAULT     168
+#define CONFIG_WIFI_IPADDRESS_3_DEFAULT     1
+#define CONFIG_WIFI_IPADDRESS_4_DEFAULT     100
+#define CONFIG_WIFI_MASK_1_DEFAULT          255
+#define CONFIG_WIFI_MASK_2_DEFAULT          255
+#define CONFIG_WIFI_MASK_3_DEFAULT          255
+#define CONFIG_WIFI_MASK_4_DEFAULT          0
+#define CONFIG_WIFI_GW_1_DEFAULT            192
+#define CONFIG_WIFI_GW_2_DEFAULT            168
+#define CONFIG_WIFI_GW_3_DEFAULT            0
+#define CONFIG_WIFI_GW_4_DEFAULT            1
+#define CONFIG_WIFI_DHCP_DEFAULT            1
 #define CONFIG_DNS_1_DEFAULT           8
 #define CONFIG_DNS_2_DEFAULT           8
 #define CONFIG_DNS_3_DEFAULT           8
@@ -242,7 +270,7 @@ class Configuration
    public:
 
    void GetIpConfig(uint8_t selector, uint8_t *octets){
-      uint8_t default_values[4];
+      //uint8_t default_values[4];
       //default_values = selector == IP_ADDRESS_ENUM ? [CONFIG_IPADDRESS_1_DEFAULT,CONFIG_IPADDRESS_2_DEFAULT,CONFIG_IPADDRESS_3_DEFAULT,CONFIG_IPADDRESS_4_DEFAULT] : default_values;
       //default_values = selector == IP_MASK_ENUM ? [CONFIG_MASK_1_DEFAULT,CONFIG_MASK_2_DEFAULT,CONFIG_MASK_3_DEFAULT,CONFIG_MASK_4_DEFAULT] : default_values;
       //default_values = selector == IP_GW_ENUM ? [CONFIG_GW_1_DEFAULT,CONFIG_GW_2_DEFAULT,CONFIG_GW_3_DEFAULT,CONFIG_GW_4_DEFAULT] : default_values;
@@ -254,6 +282,9 @@ class Configuration
       base_address = selector == IP_GW_ENUM ? CONFIG_GW_1 : base_address;
       base_address = selector == IP_DNS_ENUM ? CONFIG_DNS_1 : base_address;
       base_address = selector == IP_TRAP_ENUM ? CONFIG_TRAP_1 : base_address;
+      base_address = selector == IP_WIFI_ADDRESS_ENUM ? CONFIG_WIFI_IPADDRESS_1 : base_address;
+      base_address = selector == IP_WIFI_MASK_ENUM ? CONFIG_WIFI_MASK_1 : base_address;
+      base_address = selector == IP_WIFI_GW_ENUM ? CONFIG_WIFI_GW_1 : base_address;
       if(base_address < 0)
          return;
 
@@ -298,6 +329,24 @@ class Configuration
       octets[3] = CONFIG_GW_4_DEFAULT;
       SetIpConfig(IP_GW_ENUM, octets);
 
+      octets[0] = CONFIG_WIFI_IPADDRESS_1_DEFAULT;
+      octets[1] = CONFIG_WIFI_IPADDRESS_2_DEFAULT;
+      octets[2] = CONFIG_WIFI_IPADDRESS_3_DEFAULT;
+      octets[3] = CONFIG_WIFI_IPADDRESS_4_DEFAULT;
+      SetIpConfig(IP_WIFI_ADDRESS_ENUM, octets);
+
+      octets[0] = CONFIG_WIFI_MASK_1_DEFAULT;
+      octets[1] = CONFIG_WIFI_MASK_2_DEFAULT;
+      octets[2] = CONFIG_WIFI_MASK_3_DEFAULT;
+      octets[3] = CONFIG_WIFI_MASK_4_DEFAULT;
+      SetIpConfig(IP_WIFI_MASK_ENUM, octets);
+
+      octets[0] = CONFIG_WIFI_GW_1_DEFAULT;
+      octets[1] = CONFIG_WIFI_GW_2_DEFAULT;
+      octets[2] = CONFIG_WIFI_GW_3_DEFAULT;
+      octets[3] = CONFIG_WIFI_GW_4_DEFAULT;
+      SetIpConfig(IP_WIFI_GW_ENUM, octets);
+
       octets[0] = CONFIG_DNS_1_DEFAULT;
       octets[1] = CONFIG_DNS_2_DEFAULT;
       octets[2] = CONFIG_DNS_3_DEFAULT;
@@ -317,6 +366,8 @@ class Configuration
       PASSWORD(CONFIG_PASSWORD_DEFAULT);
       USERNAME(CONFIG_USERNAME_DEFAULT);
       HOSTNAME(CONFIG_HOSTNAME_DEFAULT);
+      WIFISSID(WIFI_SSID_DEFAULT);
+      WIFIPWD(WIFI_PASS_DEFAULT);
       SNMP_COMMUNITY(CONFIG_SNMP_COMmUNITY_DEFAULT);
 
       ResetIpConfig();
@@ -329,6 +380,9 @@ class Configuration
       base_address = selector == IP_GW_ENUM ? (CONFIG_GW_1) : base_address;
       base_address = selector == IP_DNS_ENUM ? (CONFIG_DNS_1) : base_address;
       base_address = selector == IP_TRAP_ENUM ? (CONFIG_TRAP_1) : base_address;
+      base_address = selector == IP_WIFI_ADDRESS_ENUM ? (CONFIG_WIFI_IPADDRESS_1) : base_address;
+      base_address = selector == IP_WIFI_MASK_ENUM ? (CONFIG_WIFI_MASK_1) : base_address;
+      base_address = selector == IP_WIFI_GW_ENUM ? (CONFIG_WIFI_GW_1) : base_address;
 
       if(base_address < 0)
          return;
@@ -470,6 +524,14 @@ class Configuration
       return read_float_parameter(address, factor, defaultValue);
    }
 
+   String WIFISSID(String ssid =""){
+      return read_string_parameter(CONFIG_WIFI_SSID, CONFIG_CHAR50_SIZE, ssid, WIFI_SSID_DEFAULT);
+   }
+
+   String WIFIPWD(String pwd =""){
+      return read_string_parameter(CONFIG_WIFI_PWD, CONFIG_CHAR50_SIZE, pwd, WIFI_PASS_DEFAULT);
+   }
+
    String PASSWORD(String password = "")
    {
       return read_string_parameter(CONFIG_PASSWORD, CONFIG_CHAR50_SIZE, password, CONFIG_PASSWORD_DEFAULT);
@@ -496,10 +558,20 @@ class Configuration
       return dhcp == 1 ? true : false;
    }
 
+   bool GetWifiDHCP(){
+      byte dhcp = read_byte_parameter(CONFIG_WIFI_DHCP, CONFIG_WIFI_DHCP_DEFAULT);
+      return dhcp == 1 ? true : false;
+   }
+
    bool SetDCHP(bool dhcp)
    {
       write_byte_parameter(CONFIG_DHCP, dhcp ? 1 : 0);
       return GetDHCP();
+   }
+
+   bool SetWifiDHCP(bool dhcp){
+      write_byte_parameter(CONFIG_WIFI_DHCP, dhcp ? 1 : 0);
+      return GetWifiDHCP();
    }
 
    float GetCalYPoint(uint8_t channel, uint8_t point){

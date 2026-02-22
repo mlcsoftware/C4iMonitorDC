@@ -21,9 +21,9 @@
 #define I2C_SDA 21
 #define I2C_SCL 22
 
-#define SENSOR_VERSION           "1.0.9_dev"
-#define WIFI_SSID_DEFAULT        "WashingTesterWifi"//"WashingTesterConnection"
-#define WIFI_PASS_DEFAULT        "WT134679!" //"WT134679"
+#define SENSOR_VERSION           "1.0.10_dev"
+#define WIFI_SSID_DEFAULT        ""//"WashingTesterConnection"
+#define WIFI_PASS_DEFAULT        "" //"WT134679"
 #define HW_NAME_DEFAULT          "Sensor"
 #define HW_SERIAL_DEFAULT        "WT00001"
 #define HW_UNIT_DEFAULT          ""
@@ -46,6 +46,9 @@
 #define IP_GW_ENUM              2
 #define IP_DNS_ENUM             3
 #define IP_TRAP_ENUM            4
+#define IP_WIFI_ADDRESS_ENUM    5
+#define IP_WIFI_MASK_ENUM       6
+#define IP_WIFI_GW_ENUM         7
 
 // The value of the Rref resistor. Use 430.0 for PT100 and 4300.0 for PT1000
 #define RREF      430

@@ -87,6 +87,10 @@ class Cli
          cmd_calibrate(cmd_received, length);
          return;
       }
+      if(cmd_received[0] == "ssid"){
+         cmd_ssid(cmd_received, length);
+         return;
+      }
       Serial.println("Comando incorrecto");
    }
 
@@ -319,18 +323,50 @@ class Cli
 
          Serial.print("Comunidad SNMP:");
          Serial.println(glbConfig.SNMP_COMMUNITY());
-         Serial.print("Dirección IP: ");
+         Serial.print("Dirección IP Interfaz Ethernet: ");
          Serial.println(ETH.localIP());
          Serial.print("Mascara de subred:");
          Serial.println(ETH.subnetMask());
          Serial.print("Puerta de enlace:");
          Serial.println(ETH.gatewayIP());
+
+         Serial.print("Dirección IP Interfaz Inalambrica: ");
+         Serial.println(WiFi.localIP());
+         Serial.print("Mascara de subred:");
+         Serial.println(WiFi.subnetMask());
+         Serial.print("Puerta de enlace:");
+         Serial.println(WiFi.gatewayIP());
+
+         Serial.print("Dirección de servidor de dominio");
          Serial.print("DNS:");
          Serial.println(ETH.dnsIP());
          Serial.println();
       }
       if(length == 2 && parameter[1] == "calibrate"){
          show_calibrate();
+      }
+      if(length == 2 && parameter[1] == "wifi"){
+         Serial.println("Configuración Wifi");
+         Serial.println("");
+         Serial.print("SSID: ");
+         Serial.print(glbConfig.WIFISSID());
+         Serial.print("(");
+         Serial.print(glbConfig.WIFISSID().length());
+         Serial.println(")");
+         Serial.print("Contraseña: ");
+         Serial.print(glbConfig.WIFIPWD());
+         Serial.print("(");
+         Serial.print(glbConfig.WIFIPWD().length());
+         Serial.println(")");
+         Serial.print("Estado: ");
+         Serial.print(GetWiFiStatusName(WiFi.status()));
+         Serial.println("");
+         Serial.print("Dirección IP: ");
+         Serial.println(WiFi.localIP());
+         Serial.print("Mascara de subred:");
+         Serial.println(WiFi.subnetMask());
+         Serial.print("Puerta de enlace:");
+         Serial.println(WiFi.gatewayIP());
       }
    }
 
@@ -385,6 +421,37 @@ class Cli
          Serial.println("punto1: Valor de tensión/corriente del punto 1");
          Serial.println("punto2: Valor de tensión/corriente del punto 2");
       }
+      if(cmd == "ssid")
+      {
+         show_ssid();
+      }
+   }
+
+   void show_ssid(){
+         Serial.println("ssid, configura el nombre y contraseña de la red wifi (ssid)");
+         Serial.println("Modo de uso: ssid [nombre de la red wifi] [contraseña de la red]");
+   }
+
+   void cmd_ssid(String *parameter, int length){
+      if(length < 3){
+         show_help("ssid");
+         return;
+      }
+
+      if(glbConfig.WIFISSID(parameter[1]) != parameter[1]){
+         Serial.println("Ha ocurrido un error al intentar guardar el SSID");
+         return;
+      }
+      if(glbConfig.WIFIPWD(parameter[2]) != parameter[2]){
+         Serial.println("Ha ocurrido un error al intentar guardar la contraseña de la red");
+         return;
+      }
+
+      Serial.println("Los datos de la red WIFI han sido guardados correctamente");
+      Serial.print("SSID: ");
+      Serial.println(parameter[1]);
+      Serial.println();
+      Serial.println("IMPORTANTE: Para que los cambios tengan efecto, debe reiniciar el dispositivo");
    }
 
    void cmd_calibrate(String *parameter, int length)
@@ -505,6 +572,25 @@ class Cli
          return 4;
 
       return -1;
+   }
+
+   String GetWiFiStatusName(int code){
+      if(code == WL_NO_SHIELD)
+         return "No posee interfaz WIFI";
+      if(code == WL_IDLE_STATUS)
+         return "Conectando";
+      if(code == WL_NO_SSID_AVAIL)
+         return "Red no disponible";
+      if(code == WL_SCAN_COMPLETED)
+         return "Busqueda terminada";
+      if(code == WL_CONNECTED)
+         return "Conectado";
+      if(code == WL_CONNECT_FAILED)
+         return "Error al conectar";
+      if(code == WL_CONNECTION_LOST)
+         return "Se ha pedido la conexión";
+      if(code == WL_DISCONNECTED)
+         return "Desconectado";
    }
 
    public:
