@@ -509,8 +509,15 @@ void setup()
 
   cli.begin();
 
-  if(glbConfig.WIFISSID() != "")
-    WiFi.begin(glbConfig.WIFISSID(), glbConfig.WIFIPWD());
+  if(glbConfig.WIFISSID() != ""){
+    WifiVerifyStart = millis();
+    WiFi.begin(glbConfig.WIFISSID().c_str(), glbConfig.WIFIPWD().c_str());
+    while (WiFi.status() != WL_CONNECTED && ((millis() - WifiVerifyStart) < 3000)) {
+      delay(500);
+      Serial.print(".");
+    }
+    Serial.println(WiFi.status() == WL_CONNECTED ? "Wifi conectado" : "");
+  }
   else
     Serial.println("\nInterfaz inalambrica deshabilitar. SSID no configurado");
 
@@ -1107,7 +1114,7 @@ void handleConfig(){
     if(server.hasArg("ssid"))
       glbConfig.WIFISSID(server.arg("ssid"));
     if(server.hasArg("ssidpwd"))
-      glbConfig.WIFIPWD(server.arg("wifipwd"));
+      glbConfig.WIFIPWD(server.arg("ssidpwd"));
 
     octets[0] = server.hasArg("txtwifiip1") ? (uint8_t)server.arg("txtwifiip1").toInt() : CONFIG_WIFI_IPADDRESS_1_DEFAULT;
     octets[1] = server.hasArg("txtwifiip2") ? (uint8_t)server.arg("txtwifiip2").toInt() : CONFIG_WIFI_IPADDRESS_2_DEFAULT;
@@ -1403,7 +1410,7 @@ void handleConfig(){
   // SSID
   content.replace("#ssid#", glbConfig.WIFISSID());
   // WIFI PWD
-  content.replace("#wifipwd#", glbConfig.WIFIPWD());
+  content.replace("#ssidpwd#", glbConfig.WIFIPWD());
 
   glbConfig.GetIpConfig(IP_WIFI_ADDRESS_ENUM, octects);
   data = String(octects[1]);
