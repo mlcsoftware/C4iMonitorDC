@@ -504,9 +504,6 @@ void setup()
 
   SetIPConfig();
 
-  if(ESP32_ENC_isConnected())
-    LoadServer();
-
   cli.begin();
 
   if(glbConfig.WIFISSID() != ""){
@@ -520,6 +517,9 @@ void setup()
   }
   else
     Serial.println("\nInterfaz inalambrica deshabilitar. SSID no configurado");
+
+  if(ESP32_ENC_isConnected() || WiFi.status() == WL_CONNECTED)
+    LoadServer();
 
   digitalWrite(LED, HIGH);
 }
@@ -782,7 +782,7 @@ void loop()
   snmpVoltageCH3 = (int)(VoltageCH3 * 100);
   snmpVoltageCH4 = (int)(VoltageCH4 * 100);
 
-  if(!serverInitiated && ESP32_ENC_isConnected())
+  if(!serverInitiated && (ESP32_ENC_isConnected() || WiFi.status() == WL_CONNECTED))
     LoadServer();
 
   if(serverInitiated)
