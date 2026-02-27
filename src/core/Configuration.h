@@ -276,6 +276,22 @@ class Configuration
       //default_values = selector == IP_GW_ENUM ? [CONFIG_GW_1_DEFAULT,CONFIG_GW_2_DEFAULT,CONFIG_GW_3_DEFAULT,CONFIG_GW_4_DEFAULT] : default_values;
       //default_values = selector == IP_DNS_ENUM ? [CONFIG_DNS_1_DEFAULT,CONFIG_DNS_2_DEFAULT,CONFIG_DNS_3_DEFAULT,CONFIG_DNS_4_DEFAULT] : default_values;
 
+      if(GetDHCP()){
+         IPAddress ip;
+
+         ip = selector == IP_ADDRESS_ENUM ? ETH.localIP() : ip;
+         ip = selector == IP_MASK_ENUM ? ETH.subnetMask() : ip;
+         ip = selector == IP_GW_ENUM ? ETH.gatewayIP() : ip;
+         ip = selector == IP_WIFI_ADDRESS_ENUM ? WiFi.localIP() : ip;
+         ip = selector == IP_WIFI_MASK_ENUM ? WiFi.subnetMask() : ip;
+         ip = selector == IP_WIFI_GW_ENUM ? WiFi.gatewayIP() : ip;
+
+         for(int i=0;i<4;i++)
+            octets[i] = ip[i];
+
+         return;
+      }
+
       int base_address = -1;
       base_address = selector == IP_ADDRESS_ENUM ? CONFIG_IPADDRESS_1 : base_address;
       base_address = selector == IP_MASK_ENUM ? CONFIG_MASK_1 : base_address;
@@ -297,6 +313,9 @@ class Configuration
 
    uint8_t GetIpAddress(int octet)
    {
+      if(GetDHCP()){
+         return ETH.localIP()[octet-1];
+      }
       if(octet == 1)
          return read_byte_parameter(CONFIG_IPADDRESS_1, CONFIG_IPADDRESS_1_DEFAULT);
       if(octet == 2)
@@ -424,6 +443,9 @@ class Configuration
 
    uint8_t GetGWAddress(int octet)
    {
+      if(GetDHCP())
+         return ETH.gatewayIP()[octet-1];
+
       if(octet == 1)
          return read_byte_parameter(CONFIG_GW_1, CONFIG_GW_1_DEFAULT);
       if(octet == 2)
@@ -452,6 +474,9 @@ class Configuration
 
    uint8_t GetIpMask(int octet)
    {
+      if(GetDHCP())
+         return ETH.subnetMask()[octet - 1];
+
       if(octet == 1)
          return read_byte_parameter(CONFIG_MASK_1, CONFIG_MASK_1_DEFAULT);
       if(octet == 2)
