@@ -21,7 +21,7 @@
 #define I2C_SDA 21
 #define I2C_SCL 22
 
-#define SENSOR_VERSION           "1.0.10_dev"
+#define SENSOR_VERSION           "1.0.11_dev"
 #define WIFI_SSID_DEFAULT        ""//"WashingTesterConnection"
 #define WIFI_PASS_DEFAULT        "" //"WT134679"
 #define HW_NAME_DEFAULT          "Sensor"

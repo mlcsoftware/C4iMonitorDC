@@ -116,6 +116,7 @@ WiFiUDP udp;
 SNMPAgent snmp = SNMPAgent("public", "private");
 bool WifiConnected = false;
 long WifiVerifyStart = 0;
+bool WifiConnecting = false;
 
 SNMPTrap* trapCH1Max = new SNMPTrap(glbConfig.SNMP_COMMUNITY().c_str(), SNMP_VERSION_2C);
 SNMPTrap* trapCH1Min = new SNMPTrap(glbConfig.SNMP_COMMUNITY().c_str(), SNMP_VERSION_2C);
@@ -739,6 +740,15 @@ bool WifiCheck(){
   if(glbConfig.WIFISSID() == "")
     return true;
 
+  if(WifiConnected && ((millis() - WifiVerifyStart) < 3000)){
+    WiFi.disconnect();
+    delay(10);
+    WiFi.begin(glbConfig.WIFISSID().c_str(), glbConfig.WIFIPWD().c_str());
+  }
+  
+  if(WifiConnecting && WiFi.status() != WL_CONNECTED)
+    return false;
+
   if((millis() - WifiVerifyStart) < 3000)
     return true;
 
@@ -754,12 +764,14 @@ bool WifiCheck(){
     Serial.print("Puerta de enlace:");
     Serial.println(WiFi.gatewayIP());
     WifiConnected = true;
+    WifiConnecting = false;
   }
   if(connected)
     return true;
 
   WiFi.disconnect();
-  WiFi.reconnect();
+  WiFi.begin(glbConfig.WIFISSID().c_str(), glbConfig.WIFIPWD().c_str());
+  WifiConnecting = true;
 
   return false;
 }
@@ -999,9 +1011,9 @@ void handleLogin()
               margin: 0;\
               font-family: Arial, sans-serif;\
               display: flex; \
-              justify-content: center; /* Centrado horizontal */ \
-              align-items: center;    /* Centrado vertical */ \
-              height: 100vh;          /* Asegúrate de que el padre tenga altura para centrar verticalmente */ \
+              justify-content: center;\
+              align-items: center;\
+              height: 100vh;\
           }\
           .contenedor-center{\
               display: flex;\
@@ -1413,33 +1425,33 @@ void handleConfig(){
   content.replace("#ssidpwd#", glbConfig.WIFIPWD());
 
   glbConfig.GetIpConfig(IP_WIFI_ADDRESS_ENUM, octects);
-  data = String(octects[1]);
+  data = String(octects[0]);
   content.replace("#txtwifiip1#", data);
-  data = String(octects[2]);
+  data = String(octects[1]);
   content.replace("#txtwifiip2#", data);
-  data = String(octects[3]);
+  data = String(octects[2]);
   content.replace("#txtwifiip3#", data);
-  data = String(octects[4]);
+  data = String(octects[3]);
   content.replace("#txtwifiip4#", data);
 
   glbConfig.GetIpConfig(IP_WIFI_MASK_ENUM, octects);
-  data = String(octects[1]);
+  data = String(octects[0]);
   content.replace("#txtwifimask1#", data);
-  data = String(octects[2]);
+  data = String(octects[1]);
   content.replace("#txtwifimask2#", data);
-  data = String(octects[3]);
+  data = String(octects[2]);
   content.replace("#txtwifimask3#", data);
-  data = String(octects[4]);
+  data = String(octects[3]);
   content.replace("#txtwifimask4#", data);
 
   glbConfig.GetIpConfig(IP_WIFI_GW_ENUM, octects);
-  data = String(octects[1]);
+  data = String(octects[0]);
   content.replace("#txtwifigw1#", data);
-  data = String(octects[2]);
+  data = String(octects[1]);
   content.replace("#txtwifigw2#", data);
-  data = String(octects[3]);
+  data = String(octects[2]);
   content.replace("#txtwifigw3#", data);
-  data = String(octects[4]);
+  data = String(octects[3]);
   content.replace("#txtwifigw4#", data);
 
   data = glbConfig.SNMP_COMMUNITY();

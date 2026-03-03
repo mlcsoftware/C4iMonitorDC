@@ -276,12 +276,25 @@ class Configuration
       //default_values = selector == IP_GW_ENUM ? [CONFIG_GW_1_DEFAULT,CONFIG_GW_2_DEFAULT,CONFIG_GW_3_DEFAULT,CONFIG_GW_4_DEFAULT] : default_values;
       //default_values = selector == IP_DNS_ENUM ? [CONFIG_DNS_1_DEFAULT,CONFIG_DNS_2_DEFAULT,CONFIG_DNS_3_DEFAULT,CONFIG_DNS_4_DEFAULT] : default_values;
 
-      if(GetDHCP()){
+      if((selector == IP_ADDRESS_ENUM ||
+            selector == IP_MASK_ENUM ||
+            selector == IP_GW_ENUM) &&  GetDHCP()){
          IPAddress ip;
 
          ip = selector == IP_ADDRESS_ENUM ? ETH.localIP() : ip;
          ip = selector == IP_MASK_ENUM ? ETH.subnetMask() : ip;
          ip = selector == IP_GW_ENUM ? ETH.gatewayIP() : ip;
+
+         for(int i=0;i<4;i++)
+            octets[i] = ip[i];
+
+         return;
+      }
+      if((selector == IP_WIFI_ADDRESS_ENUM ||
+            selector == IP_WIFI_MASK_ENUM ||
+            selector == IP_WIFI_GW_ENUM) && GetWifiDHCP()){
+         IPAddress ip;
+
          ip = selector == IP_WIFI_ADDRESS_ENUM ? WiFi.localIP() : ip;
          ip = selector == IP_WIFI_MASK_ENUM ? WiFi.subnetMask() : ip;
          ip = selector == IP_WIFI_GW_ENUM ? WiFi.gatewayIP() : ip;
@@ -316,6 +329,7 @@ class Configuration
       if(GetDHCP()){
          return ETH.localIP()[octet-1];
       }
+
       if(octet == 1)
          return read_byte_parameter(CONFIG_IPADDRESS_1, CONFIG_IPADDRESS_1_DEFAULT);
       if(octet == 2)
@@ -445,6 +459,8 @@ class Configuration
    {
       if(GetDHCP())
          return ETH.gatewayIP()[octet-1];
+      if(GetWifiDHCP())
+         return WiFi.gatewayIP()[octet-1];
 
       if(octet == 1)
          return read_byte_parameter(CONFIG_GW_1, CONFIG_GW_1_DEFAULT);
