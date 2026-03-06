@@ -459,8 +459,6 @@ class Configuration
    {
       if(GetDHCP())
          return ETH.gatewayIP()[octet-1];
-      if(GetWifiDHCP())
-         return WiFi.gatewayIP()[octet-1];
 
       if(octet == 1)
          return read_byte_parameter(CONFIG_GW_1, CONFIG_GW_1_DEFAULT);
