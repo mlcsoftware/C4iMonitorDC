@@ -356,6 +356,7 @@ void handleMonitor(){
         <div class=\"parameter-container\"> <label>Corriente Canal 2 [A]:</label> <p>{CH2}</p> </div> \
         <div class=\"parameter-container\"> <label>Tensión Canal 3 [V]:</label> <p>{CH3}</p> </div> \
         <div class=\"parameter-container\"> <label>Tensión Canal 4 [V]:</label> <p>{CH4}</p> </div>\
+        <div class=\"parameter-container\"> <label>Tensión V3 - V4 [V]:</label> <p>{CHDIFF}</p> </div>\
         <hr /><a href=\"monitor\">Refrescar</a>\
       </body> \
     </html>";
@@ -373,7 +374,7 @@ void handleMonitor(){
   data = String(VoltageCH4, 3);
   html.replace("{CH4}", data);
   // CHDIFF
-  data = String(VoltageCH4 - VoltageCH3, 3);
+  data = String(VoltageCH3 - VoltageCH4, 3);
   html.replace("{CHDIFF}", data);
   // POWER1
   data = String(VoltageCH3 * CurrentCH1, 3);
