@@ -733,6 +733,7 @@ void loop()
   snmpCurrentCH2 = (int)(CurrentCH2 * 100);
   snmpVoltageCH3 = (int)(VoltageCH3 * 100);
   snmpVoltageCH4 = (int)(VoltageCH4 * 100);
+  snmpVoltageDiff = (int)((VoltageCH3 - VoltageCH4) * 100);
 
   if(!serverInitiated && ESP32_ENC_isConnected())
     LoadServer();
