@@ -274,6 +274,25 @@ class Cli
       }
    }
 
+   void cmd_threshold(string *parameter, int length){
+      if(length < 3)
+         return;
+
+      String magnitude = parameter[1];
+      String v = parameter[2];
+      float value = v.toFloat();
+
+      if(magnitude == "current" && glbConfig.SetCurrentThreshold(value)){
+         Serial.print("Filtro umbral de corriente: ");
+         Serial.print(value);
+         Serial.println(" A.");
+         Serial.println("Debe reiniciar el equipo para completar la configuración.");
+         return;
+      }
+
+      show_help("threshold");
+   }
+
    void reset_factory_default()
    {
       glbConfig.SetToFactory();
@@ -332,6 +351,16 @@ class Cli
       if(length == 2 && parameter[1] == "calibrate"){
          show_calibrate();
       }
+      if(length == 2 && parameter[1] == "threshold"){
+         show_threshold();
+      }
+   }
+
+   void show_threshold(){
+      Serial.println("Filtro umbral de corriente");
+      Serial.print("Umbral: ");
+      Serial.print(glbConfig.GetCurrentThreshold());
+      Serial.println(" A.");
    }
 
    void show_calibrate(){
@@ -384,6 +413,12 @@ class Cli
          Serial.println("canal: Nombre del canal que se desea calibrar.");
          Serial.println("punto1: Valor de tensión/corriente del punto 1");
          Serial.println("punto2: Valor de tensión/corriente del punto 2");
+      }
+      if(cmd == "threshold")
+      {
+         Serial.println("Threshold, configura el filtro umbral de corriente.");
+         Serial.println("Modo de uso: threshold current valor");
+         Serial.println("valor: Valor umbral en Amperes");
       }
    }
 

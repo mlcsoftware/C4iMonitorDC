@@ -64,6 +64,8 @@
 #define CONFIG_TRAP_2                  CONFIG_TRAP_1 + CONFIG_CHAR_SIZE
 #define CONFIG_TRAP_3                  CONFIG_TRAP_2 + CONFIG_CHAR_SIZE
 #define CONFIG_TRAP_4                  CONFIG_TRAP_3 + CONFIG_CHAR_SIZE
+#define CONFIG_CURRENT_THRESHOLD       CONFIG_TRAP_4 + CONFIG_CHAR_SIZE
+#define CONFIG_VOLTAGE_THRESHOLD       CONFIG_CURRENT_THRESHOLD + CONFIG_FLOAT_SIZE
 
 #define CONFIG_IPADDRESS_1_DEFAULT     192
 #define CONFIG_IPADDRESS_2_DEFAULT     168
@@ -88,6 +90,8 @@
 #define CONFIG_SNMP_COMmUNITY_DEFAULT  "snmp"
 #define CONFIG_CURRENT_FACTOR_DEFAULT  24.56
 #define CONFIG_VOLTAGE_FACTOR_DEFAULT  24.56
+#define CONFIG_CURRENT_THRES_DEFAULT   3
+#define CONFIG_VOLTAGE_THRES_DEFAULT   2
 
 
 union parse_float_byte{
@@ -564,6 +568,34 @@ class Configuration
          return 0;
 
       return read_float_parameter(address, threshold, 1000);
+   }
+
+   float GetCurrentThreshold(){
+      return read_float_parameter(CONFIG_CURRENT_THRESHOLD, -1f, CONFIG_CURRENT_THRES_DEFAULT);
+   }
+
+   bool SetCurrentThreshold(float threshold){
+      int address = CONFIG_CURRENT_THRESHOLD;
+
+      write_float_parameter(address, value);
+
+      float f = read_float_parameter(address, -1, CONFIG_CURRENT_THRES_DEFAULT);
+
+      return f == value;
+   }
+
+   float GetVoltageThreshold(){
+      return read_float_parameter(CONFIG_VOLTAGE_THRESHOLD, -1f, CONFIG_VOLTAGE_THRES_DEFAULT);
+   }
+
+   bool SetVoltageThreshold(float threshold){
+      int address = CONFIG_VOLTAGE_THRESHOLD;
+
+      write_float_parameter(address, value);
+
+      float f = read_float_parameter(address, -1, CONFIG_VOLTAGE_THRES_DEFAULT);
+
+      return f == value;
    }
 
 // Variables de sistema

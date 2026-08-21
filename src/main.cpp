@@ -97,7 +97,6 @@
 #define CURRENT_MAX         150
 #define HISTERESIS_CURRENT  2
 #define HISTERESIS_VOLTAGE  2
-#define THRESHOLD_CURRENT   1
 
 #define LED                 2
 
@@ -165,6 +164,7 @@ int ch1BufferCounter = 0;
 int ch2BufferCounter = 0;
 int ch3BufferCounter = 0;
 int ch4BufferCounter = 0;
+float currentThreshold = 3;
 
 // Enter a MAC address and IP address for your controller below.
 #define NUMBER_OF_MAC      20
@@ -464,6 +464,9 @@ void setup()
     digitalWrite(LED,LOW);
     delay(FLASH_DELAY);
   }
+
+  // Inicializa el threshold
+  currentThreshold = glbConfig.GetCurrentThreshold();
 
   while (!Serial && (millis() < 5000));
 
@@ -842,7 +845,7 @@ float CalculateAdc(uint16_t x, uint8_t channel)
   float y1 = glbConfig.GetCalYPoint(channel, 1);
   float y2 = glbConfig.GetCalYPoint(channel, 2);
   // Verifica si esta en el primer tramo
-  if(x < x1){
+  if(x < x1 && channel > 2){
     x2 = x1;
     y2 = y1;
     x1 = 0;
@@ -859,7 +862,7 @@ float CalculateAdc(uint16_t x, uint8_t channel)
   if(channel == 1 || channel == 2){
     //float current = (f - 3030) * 0.1176;
     corrected = corrected > CURRENT_MAX || corrected < -CURRENT_MAX ? 0 : corrected;
-    corrected = corrected > THRESHOLD_CURRENT || corrected < -THRESHOLD_CURRENT ? corrected : 0;
+    corrected = corrected > currentThreshold || corrected < -currentThreshold ? corrected : 0;
     return corrected; //(x - 2048) * 3.3 / 4096; //glbConfig.ADC_FACTOR(channel) * x * 3.3f / 4096;
   }
 
