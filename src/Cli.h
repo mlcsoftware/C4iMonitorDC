@@ -87,6 +87,10 @@ class Cli
          cmd_calibrate(cmd_received, length);
          return;
       }
+      if(cmd_received[0] == "threshold"){
+         cmd_threshold(cmd_received, length);
+         return;
+      }
       Serial.println("Comando incorrecto");
    }
 
@@ -274,7 +278,7 @@ class Cli
       }
    }
 
-   void cmd_threshold(string *parameter, int length){
+   void cmd_threshold(String *parameter, int length){
       if(length < 3)
          return;
 

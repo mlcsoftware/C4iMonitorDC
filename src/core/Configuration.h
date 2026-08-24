@@ -571,31 +571,31 @@ class Configuration
    }
 
    float GetCurrentThreshold(){
-      return read_float_parameter(CONFIG_CURRENT_THRESHOLD, -1f, CONFIG_CURRENT_THRES_DEFAULT);
+      return read_float_parameter(CONFIG_CURRENT_THRESHOLD, -1.0f, CONFIG_CURRENT_THRES_DEFAULT);
    }
 
    bool SetCurrentThreshold(float threshold){
       int address = CONFIG_CURRENT_THRESHOLD;
 
-      write_float_parameter(address, value);
+      write_float_parameter(address, threshold);
 
       float f = read_float_parameter(address, -1, CONFIG_CURRENT_THRES_DEFAULT);
 
-      return f == value;
+      return f == threshold;
    }
 
    float GetVoltageThreshold(){
-      return read_float_parameter(CONFIG_VOLTAGE_THRESHOLD, -1f, CONFIG_VOLTAGE_THRES_DEFAULT);
+      return read_float_parameter(CONFIG_VOLTAGE_THRESHOLD, -1.0f, CONFIG_VOLTAGE_THRES_DEFAULT);
    }
 
    bool SetVoltageThreshold(float threshold){
       int address = CONFIG_VOLTAGE_THRESHOLD;
 
-      write_float_parameter(address, value);
+      write_float_parameter(address, threshold);
 
       float f = read_float_parameter(address, -1, CONFIG_VOLTAGE_THRES_DEFAULT);
 
-      return f == value;
+      return f == threshold;
    }
 
 // Variables de sistema
